@@ -1,0 +1,11 @@
+version: '2'
+services:
+    piston-bot:
+        container_name: piston-bot
+        image: piston-bot
+        build: .
+        volumes:
+            - ./:/opt/piston-bot
+        command: bash -c 'cd /opt/piston-bot/src && python3 -u bot.py'
+        restart: always
+        network_mode: bridge
