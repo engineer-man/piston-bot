@@ -94,49 +94,51 @@ class Run(commands.Cog, name='CodeExecution'):
             + '```'
         )
 
+    async def send_howto(self, ctx):
+        languages = []
+        last = ''
+        for language in sorted(set(self.languages.values())):
+            current = language[0].lower()
+            if current not in last:
+                languages.append([language])
+            else:
+                languages[-1].append(language)
+            last = current
+        languages = map(', '.join, languages)
+
+        run_instructions = (
+            '**Here are my supported languages:**\n'
+            + ', '.join(languages) +
+            '\n\n**You can run code like this:**\n'
+            '/run <language>\n'
+            '\\`\\`\\`\nyour code\n\\`\\`\\`\n'
+            '\n**Support:**\n'
+            'Provided by the EngineerMan Discord Server\n'
+            'visit -> **emkc.org/run** to get it in your own server\n'
+            'visit -> **discord.gg/engineerman** for more info'
+        )
+
+        e = Embed(title='I can execute code right here in Discord!',
+                  description=run_instructions,
+                  color=0x2ECC71)
+        e.set_thumbnail(
+            url='https://cdn.discordapp.com/avatars/473160828502409217/1789e1e10d429ff4ef37d863433e684e.png'
+        )
+        await ctx.send(embed=e)
+        return
+
     @commands.command()
     async def run(self, ctx, language: typing.Optional[str] = None):
         """Run some code
         Type "/run" for instructions"""
-        if ctx.message.content.strip() == '/run':
-            languages = []
-            last = ''
-            for language in sorted(set(self.languages.values())):
-                current = language[0].lower()
-                if current not in last:
-                    languages.append([language])
-                else:
-                    languages[-1].append(language)
-                last = current
-            languages = map(', '.join, languages)
-
-            run_instructions = (
-                '**Here are my supported languages:**\n'
-                + ', '.join(languages) +
-                '\n\n**You can run code like this:**\n'
-                '/run <language>\n'
-                '\\`\\`\\`\nyour code\n\\`\\`\\`\n'
-                '\n**Support:**\n'
-                'Provided by the EngineerMan Discord Server\n'
-                'visit -> **emkc.org/run** to get it in your own server\n'
-                'visit -> **discord.gg/engineerman** for more info'
-            )
-
-            e = Embed(title='I can execute code right here in Discord!',
-                      description=run_instructions,
-                      color=0x2ECC71)
-            await ctx.send(embed=e)
-            return
-
         await ctx.trigger_typing()
         if not language:
-            await self.client.get_command('howto').invoke(ctx)
+            await self.send_howto(ctx)
             return
         api_response = await self.get_api_response(ctx, language)
         msg = await ctx.send(api_response)
         self.last_run_command_msg[ctx.author.id] = ctx.message
         self.last_run_outputs[ctx.author.id] = msg
-
 
     @commands.command(hidden=True)
     async def edit_last_run(self, ctx, language: typing.Optional[str] = None):
@@ -164,7 +166,7 @@ class Run(commands.Cog, name='CodeExecution'):
         content = after.content.lower()
         prefixes = await self.client.get_prefix(after)
         if isinstance(prefixes, str):
-            prefixes = [prefixes,]
+            prefixes = [prefixes, ]
         if not any(content.startswith(f'{prefix}run') for prefix in prefixes):
             return
         ctx = await self.client.get_context(after)
