@@ -32,12 +32,12 @@ class PistonBot(Bot):
 
 client = PistonBot(
     command_prefix=('/'),
-    description='Hi I am PistonBot!',
+    description='Hello, I can run code!',
     max_messages=15000
 )
 
-client.default_activity = Activity(name='emkc.org/piston (/help)', type=0)
-client.error_activity = Activity(name='! emkc.org/piston (/help)', type=0)
+client.default_activity = Activity(name='emkc.org/run | /run', type=0)
+client.error_activity = Activity(name='!emkc.org/run | /run', type=0)
 
 STARTUP_EXTENSIONS = []
 for file in listdir(path.join(path.dirname(__file__), 'cogs/')):
@@ -80,6 +80,7 @@ async def on_error(event_method, *args, **kwargs):
             client.last_errors.append((sys.exc_info()[1], datetime.utcnow(), a2, a2.content))
         await client.change_presence(activity=client.error_activity)
 
+client.remove_command('help')
 
 client.run()
 print('PistonBot has exited')

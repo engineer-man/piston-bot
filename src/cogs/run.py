@@ -94,39 +94,40 @@ class Run(commands.Cog, name='CodeExecution'):
             + '```'
         )
 
-    @commands.command(
-        name='howto',
-    )
-    async def howto(self, ctx):
-        """How to properly run code"""
-        languages = []
-        last = ''
-        for language in sorted(set(self.languages.values())):
-            current = language[0].lower()
-            if current not in last:
-                languages.append([language])
-            else:
-                languages[-1].append(language)
-            last = current
-        languages = map('/'.join, languages)
-
-        run_instructions = (
-            '**Here are my supported languages:**\n'
-            + '\n'.join(languages) +
-            '\n\n**You can run code like this:**\n'
-            '/run python\n'
-            '\\`\\`\\`python\nyour code\n\\`\\`\\`\n'
-        )
-
-        e = Embed(title='I can run code',
-                  description=run_instructions,
-                  color=0x2ECC71)
-        await ctx.send(embed=e)
-
     @commands.command()
     async def run(self, ctx, language: typing.Optional[str] = None):
         """Run some code
         Type "/run" for instructions"""
+        if ctx.message.content.strip() == '/run':
+            languages = []
+            last = ''
+            for language in sorted(set(self.languages.values())):
+                current = language[0].lower()
+                if current not in last:
+                    languages.append([language])
+                else:
+                    languages[-1].append(language)
+                last = current
+            languages = map(', '.join, languages)
+
+            run_instructions = (
+                '**Here are my supported languages:**\n'
+                + ', '.join(languages) +
+                '\n\n**You can run code like this:**\n'
+                '/run <language>\n'
+                '\\`\\`\\`\nyour code\n\\`\\`\\`\n'
+                '\n**Support:**\n'
+                'Provided by the EngineerMan Discord Server\n'
+                'visit -> **emkc.org/run** to get it in your own server\n'
+                'visit -> **discord.gg/engineerman** for more info'
+            )
+
+            e = Embed(title='I can execute code right here in Discord!',
+                      description=run_instructions,
+                      color=0x2ECC71)
+            await ctx.send(embed=e)
+            return
+
         await ctx.trigger_typing()
         if not language:
             await self.client.get_command('howto').invoke(ctx)

@@ -1,8 +1,7 @@
 version: '2'
 services:
-    piston-bot:
-        container_name: piston-bot
-        image: piston-bot
+    piston:
+        container_name: piston_bot
         build: .
         volumes:
             - ./:/opt/piston-bot
