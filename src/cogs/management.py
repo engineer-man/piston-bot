@@ -71,12 +71,12 @@ class Management(commands.Cog, name='Management'):
             return
 
         if isinstance(error, commands.UnexpectedQuoteError):
-            await ctx.send('`Invalid command format`')
+            await ctx.send('`Unexpected quote encountered`')
             return
 
         # In case of an unhandled error -> Save the error + current datetime + ctx + original text
         # so it can be accessed later with the error command
-        await ctx.send('Sorry, something went wrong. If you just added this bot, please ensure the bot has "Embed Links" permission.')
+        await ctx.send('Sorry, something went wrong. The Error was saved - we will look into it.')
         self.client.last_errors.append((error, datetime.utcnow(), ctx, ctx.message.content))
         await self.client.change_presence(activity=self.client.error_activity)
 
@@ -298,16 +298,19 @@ class Management(commands.Cog, name='Management'):
             traceback.format_exception(type(exc), exc, exc.__traceback__)
         )
         response = [f'`Error occured {delta_str}`']
-        response.append(
-            f'`Server:{error_source.guild.name} | Channel: {error_source.channel.name}`'
-        )
-        response.append(f'`User: {error_source.author.name}#{error_source.author.discriminator}`')
-        if isinstance(error_source, commands.Context):
-            response.append(f'`Command: {error_source.invoked_with}`')
-            response.append(error_source.message.jump_url)
-        else:
-            response.append(f'`Command: No Command`')
-            response.append(error_source.jump_url)
+        if error_source is not None:
+            response.append(
+                f'`Server:{error_source.guild.name} | Channel: {error_source.channel.name}`'
+            )
+            response.append(
+                f'`User: {error_source.author.name}#{error_source.author.discriminator}`'
+            )
+            if isinstance(error_source, commands.Context):
+                response.append(f'`Command: {error_source.invoked_with}`')
+                response.append(error_source.message.jump_url)
+            else:
+                response.append(f'`Command: No Command`')
+                response.append(error_source.jump_url)
         response.append(f'```python\n')
         num_chars = sum(len(line) for line in response)
         for line in tb.split('\n'):
@@ -320,10 +323,11 @@ class Management(commands.Cog, name='Management'):
                 num_chars = 0
         response.append('```')
         await ctx.send('\n'.join(response))
-        e = Embed(title='Full command that caused the error:',
-                  description=orig_content)
-        e.set_footer(text=error_source.author.display_name,
-                     icon_url=error_source.author.avatar_url)
+        if error_source is not None:
+            e = Embed(title='Full command that caused the error:',
+                    description=orig_content)
+            e.set_footer(text=error_source.author.display_name,
+                        icon_url=error_source.author.avatar_url)
         await ctx.send(embed=e)
 
     @commands.command(
