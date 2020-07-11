@@ -74,7 +74,7 @@ class Management(commands.Cog, name='Management'):
 
         # In case of an unhandled error -> Save the error + current datetime + ctx + original text
         # so it can be accessed later with the error command
-        await ctx.send('Sorry, something went wrong. Error saved in error log')
+        await ctx.send('Sorry, something went wrong. If you just added this bot, please ensure the bot has "Embed Links" permission.')
         self.client.last_errors.append((error, datetime.utcnow(), ctx, ctx.message.content))
         await self.client.change_presence(activity=self.client.error_activity)
 
