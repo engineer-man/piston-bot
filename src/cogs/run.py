@@ -95,16 +95,7 @@ class Run(commands.Cog, name='CodeExecution'):
         )
 
     async def send_howto(self, ctx):
-        languages = []
-        last = ''
-        for language in sorted(set(self.languages.values())):
-            current = language[0].lower()
-            if current not in last:
-                languages.append([language])
-            else:
-                languages[-1].append(language)
-            last = current
-        languages = map(', '.join, languages)
+        languages = sorted(set(self.languages.values()))
 
         run_instructions = (
             '**Here are my supported languages:**\n'
@@ -146,7 +137,6 @@ class Run(commands.Cog, name='CodeExecution'):
         if not ctx.invoked_with == 'run':
             return
         if not language:
-            await self.client.get_command('howto').invoke(ctx)
             return
         api_response = await self.get_api_response(ctx, language)
         try:
