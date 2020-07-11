@@ -55,8 +55,6 @@ for extension in reversed(STARTUP_EXTENSIONS):
 
 @client.event
 async def on_ready():
-    print('\nActive in these guilds/servers:')
-    [print(g.name) for g in client.guilds]
     print('PistonBot started successfully')
     return True
 

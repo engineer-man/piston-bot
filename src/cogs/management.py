@@ -331,12 +331,11 @@ class Management(commands.Cog, name='Management'):
         hidden=True,
     )
     async def show_servers(self, ctx):
-        guilds = []
+        await ctx.send(
+            f'**I am active in {len(self.client.guilds)} Servers**: ' +
+            ', '.join([str(g) for g in self.client.guilds])
+        )
 
-        for guild in self.client.guilds:
-            guilds.append(guild.name)
-
-        await ctx.send('**Active Servers**: ' + ', '.join(guilds))
 
 def setup(client):
     client.add_cog(Management(client))
