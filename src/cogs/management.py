@@ -36,7 +36,6 @@ class Management(commands.Cog, name='Management'):
     # ----------------------------------------------
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
-        print('MANAGEMENT')
         if isinstance(error, commands.CommandNotFound):
             return
 
@@ -52,9 +51,7 @@ class Management(commands.Cog, name='Management'):
             else:
                 missing_type = ''
             await ctx.send(
-                f'Missing parameter: `{missing}{missing_type}`' +
-                f'\nIf you are not sure how to use the command, try running ' +
-                f'`+help {ctx.command.qualified_name}`'
+                f'Missing parameter: `{missing}{missing_type}`'
             )
             return
 
@@ -70,6 +67,10 @@ class Management(commands.Cog, name='Management'):
                 color=0x2ECC71
             )
             await ctx.send(embed=embed)
+            return
+
+        if isinstance(error, commands.UnexpectedQuoteError):
+            await ctx.send('`Invalid command format`')
             return
 
         # In case of an unhandled error -> Save the error + current datetime + ctx + original text
