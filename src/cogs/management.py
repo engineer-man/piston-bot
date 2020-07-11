@@ -314,6 +314,17 @@ class Management(commands.Cog, name='Management'):
                      icon_url=error_source.author.avatar_url)
         await ctx.send(embed=e)
 
+    @commands.command(
+        name='servers',
+        hidden=True,
+    )
+    async def show_servers(self, ctx):
+        guilds = []
+
+        for guild in self.client.guilds:
+            guilds.append(guild.name)
+
+        await ctx.send('**Active Servers**: ' + ', '.join(guilds))
 
 def setup(client):
     client.add_cog(Management(client))

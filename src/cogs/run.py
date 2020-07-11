@@ -121,9 +121,9 @@ class Run(commands.Cog, name='CodeExecution'):
         e = Embed(title='I can execute code right here in Discord!',
                   description=run_instructions,
                   color=0x2ECC71)
-        e.set_thumbnail(
-            url='https://cdn.discordapp.com/avatars/473160828502409217/1789e1e10d429ff4ef37d863433e684e.png'
-        )
+        # e.set_thumbnail(
+        #     url='https://cdn.discordapp.com/avatars/473160828502409217/1789e1e10d429ff4ef37d863433e684e.png'
+        # )
         await ctx.send(embed=e)
         return
 
