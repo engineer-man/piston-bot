@@ -10,6 +10,7 @@ Commands:
 """
 import json
 import traceback
+import typing
 from datetime import datetime
 from os import path, listdir
 from discord import Embed
@@ -211,8 +212,12 @@ class Management(commands.Cog, name='Management'):
         hidden=True,
         aliases=['errors']
     )
-    async def error(self, ctx):
+    async def error(self, ctx, n: typing.Optional[int] = None):
         """Show a concise list of stored errors"""
+
+        if n is not None:
+            await self.print_traceback(ctx, n)
+            return
 
         NUM_ERRORS_PER_PAGE = 15
 
@@ -266,7 +271,9 @@ class Management(commands.Cog, name='Management'):
     )
     async def error_traceback(self, ctx, n: int = None):
         """Print the traceback of error [n] from the error log"""
+        await self.print_traceback(ctx, n)
 
+    async def print_traceback(self, ctx, n):
         error_log = self.client.last_errors
 
         if not error_log:
@@ -291,7 +298,9 @@ class Management(commands.Cog, name='Management'):
             traceback.format_exception(type(exc), exc, exc.__traceback__)
         )
         response = [f'`Error occured {delta_str}`']
-        response.append(f'`Server:{error_source.guild.name} | Channel: {error_source.channel.name}`')
+        response.append(
+            f'`Server:{error_source.guild.name} | Channel: {error_source.channel.name}`'
+        )
         response.append(f'`User: {error_source.author.name}#{error_source.author.discriminator}`')
         if isinstance(error_source, commands.Context):
             response.append(f'`Command: {error_source.invoked_with}`')
