@@ -266,6 +266,7 @@ class Management(commands.Cog, name='Management'):
     )
     async def error_traceback(self, ctx, n: int = None):
         """Print the traceback of error [n] from the error log"""
+
         error_log = self.client.last_errors
 
         if not error_log:
@@ -290,13 +291,14 @@ class Management(commands.Cog, name='Management'):
             traceback.format_exception(type(exc), exc, exc.__traceback__)
         )
         response = [f'`Error occured {delta_str}`']
+        response.append(f'`Server:{error_source.guild.name} | Channel: {error_source.channel.name}`')
+        response.append(f'`User: {error_source.author.name}#{error_source.author.discriminator}`')
         if isinstance(error_source, commands.Context):
             response.append(f'`Command: {error_source.invoked_with}`')
-            response.append(f'`Where:`{error_source.message.jump_url}')
+            response.append(error_source.message.jump_url)
         else:
             response.append(f'`Command: No Command`')
-            response.append(f'`Where:`{error_source.jump_url}')
-        response.append(f'`User: {error_source.author.name}#{error_source.author.discriminator}`')
+            response.append(error_source.jump_url)
         response.append(f'```python\n')
         num_chars = sum(len(line) for line in response)
         for line in tb.split('\n'):
