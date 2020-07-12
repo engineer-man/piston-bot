@@ -391,5 +391,16 @@ class Management(commands.Cog, name='Management'):
         except Exception as e:
             await ctx.send(str(e))
 
+    # ----------------------------------------------
+    # Command to stop the bot
+    # ----------------------------------------------
+    @commands.command(
+        name='shutdown',
+        hidden=True
+    )
+    async def shutdown(self, ctx):
+        """Stop the bot"""
+        await self.client.close()
+
 def setup(client):
     client.add_cog(Management(client))
