@@ -11,6 +11,8 @@ Commands:
 import json
 import traceback
 import typing
+import subprocess
+import re
 from datetime import datetime
 from os import path, listdir
 from discord import Embed
@@ -21,6 +23,7 @@ class Management(commands.Cog, name='Management'):
     def __init__(self, client):
         self.client = client
         self.reload_config()
+        self.cog_re = re.compile(r'\s*python\/cogs\/(.+)\.py\s*\|\s*\d+\s*[+-]+')
 
     async def cog_check(self, ctx):
         return self.client.user_is_admin(ctx.author)
@@ -340,6 +343,53 @@ class Management(commands.Cog, name='Management'):
             ', '.join([str(g) for g in self.client.guilds])
         )
 
+    # ----------------------------------------------
+    # Command to pull the latest changes from github
+    # ----------------------------------------------
+    @commands.group(
+        name='git',
+        hidden=True,
+    )
+    async def git(self, ctx):
+        """Commands to run git commands on the local repo"""
+        pass
+
+    @git.command(
+        name='pull',
+    )
+    async def pull(self, ctx):
+        """Pull the latest changes from github"""
+        await ctx.trigger_typing()
+        try:
+            output = subprocess.check_output(
+                ['git', 'pull']).decode()
+            await ctx.send('```git\n' + output + '\n```')
+        except Exception as e:
+            return await ctx.send(str(e))
+
+        _cogs = [f'cogs.{i}' for i in self.cog_re.findall(output)]
+        active_cogs = [i for i in _cogs if i in self.client.extensions]
+        if active_cogs:
+            for cog_name in active_cogs:
+                await ctx.invoke(self.client.get_command('reload'), cog_name)
+
+    # ----------------------------------------------
+    # Command to reset the repo to a previous commit
+    # ----------------------------------------------
+    @git.command(
+        name='reset',
+    )
+    async def reset(self, ctx, n: int):
+        """Reset repo to HEAD~[n]"""
+        if not n > 0:
+            raise commands.BadArgument('Please specify n>0')
+        await ctx.trigger_typing()
+        try:
+            output = subprocess.check_output(
+                ['git', 'reset', '--hard', f'HEAD~{n}']).decode()
+            await ctx.send('```git\n' + output + '\n```')
+        except Exception as e:
+            await ctx.send(str(e))
 
 def setup(client):
     client.add_cog(Management(client))
