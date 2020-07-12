@@ -30,6 +30,7 @@ class PistonBot(Bot):
     def user_is_admin(self, user):
         return user.id in self.config['admins']
 
+
 client = PistonBot(
     command_prefix=('/'),
     description='Hello, I can run code!',
@@ -53,10 +54,12 @@ for extension in reversed(STARTUP_EXTENSIONS):
         exc = f'{type(e).__name__}: {e}'
         print(f'Failed to load extension {extension}\n{exc}')
 
+
 @client.event
 async def on_ready():
     print('PistonBot started successfully')
     return True
+
 
 @client.event
 async def on_error(event_method, *args, **kwargs):
@@ -73,7 +76,7 @@ async def on_error(event_method, *args, **kwargs):
     # --------------- custom code below -------------------------------
     # Saving the error if it resulted from a message edit
     if len(args) > 1:
-        a1, a2,*_ = args
+        a1, a2, *_ = args
         if isinstance(a1, Message) and isinstance(a2, Message):
             client.last_errors.append((sys.exc_info()[1], datetime.utcnow(), a2, a2.content))
         await client.change_presence(activity=client.error_activity)
