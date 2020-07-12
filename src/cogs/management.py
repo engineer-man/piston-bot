@@ -23,7 +23,7 @@ class Management(commands.Cog, name='Management'):
     def __init__(self, client):
         self.client = client
         self.reload_config()
-        self.cog_re = re.compile(r'\s*python\/cogs\/(.+)\.py\s*\|\s*\d+\s*[+-]+')
+        self.cog_re = re.compile(r'\s*src\/cogs\/(.+)\.py\s*\|\s*\d+\s*[+-]+')
 
     async def cog_check(self, ctx):
         return self.client.user_is_admin(ctx.author)
