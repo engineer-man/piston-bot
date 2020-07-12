@@ -72,10 +72,11 @@ class Run(commands.Cog, name='CodeExecution'):
             return '`No code or invalid code present`'
         source = message[1]
         source = source[source.find('\n'):].strip()
+        args = message[0].split('\n')[1:]
 
         url = 'https://emkc.org/api/internal/piston/execute'
         headers = {'Authorization': self.client.config["emkc_key"]}
-        data = {'language': language, 'source': source}
+        data = {'language': language, 'source': source, 'args': args}
 
         async with self.client.session.post(
             url,
@@ -101,7 +102,7 @@ class Run(commands.Cog, name='CodeExecution'):
             '**Here are my supported languages:**\n'
             + ', '.join(languages) +
             '\n\n**You can run code like this:**\n'
-            '/run <language>\n'
+            '/run <language>\nOptionally add here any commandline-arguments in separate lines\n'
             '\\`\\`\\`\nyour code\n\\`\\`\\`\n'
             '\n**Support:**\n'
             'Provided by the EngineerMan Discord Server\n'
