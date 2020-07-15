@@ -2,6 +2,8 @@
 
 I can run Code inside Discord Chats.
 
+![helloworld picture](helloworld.png)
+
 You can add me to your server here: https://emkc.org/run 
 
 I use https://github.com/engineer-man/piston to run code.
