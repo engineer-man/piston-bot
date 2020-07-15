@@ -7,6 +7,7 @@ Commands:
 """
 
 import typing
+import json
 from discord.ext import commands
 from discord import Embed
 
@@ -72,8 +73,7 @@ class Run(commands.Cog, name='CodeExecution'):
             return '`No code or invalid code present`'
         source = message[1]
         source = source[source.find('\n'):].strip()
-        args = message[0].split('\n')[1:-1]
-
+        args = [x for x in message[0].split('\n')[1:] if x]
         url = 'https://emkc.org/api/v1/piston/execute'
         headers = {'Authorization': self.client.config["emkc_key"]}
         data = {'language': language, 'source': source, 'args': args}
@@ -81,7 +81,7 @@ class Run(commands.Cog, name='CodeExecution'):
         async with self.client.session.post(
             url,
             headers=headers,
-            data=data
+            data=json.dumps(data)
         ) as response:
             r = await response.json()
         if not response.status == 200:
