@@ -8,8 +8,9 @@ Commands:
 
 import typing
 import json
-from discord.ext import commands
 from discord import Embed
+from discord.ext import commands
+from discord.utils import escape_mentions
 
 
 class Run(commands.Cog, name='CodeExecution'):
@@ -94,7 +95,7 @@ class Run(commands.Cog, name='CodeExecution'):
         return (
             f'Here is your output {ctx.author.mention}\n'
             + '```\n'
-            + '\n'.join(r['output'].split('\n')[:30])
+            + escape_mentions('\n'.join(r['output'].split('\n')[:30]))
             + '```'
         )
 
