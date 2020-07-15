@@ -51,4 +51,4 @@ You can use the bot like this
 ```
 ````
 
-You can edit your last **/run** message if you make a mistake and the Bot will edit it's initial response.
+You can edit your last **/run** message if you make a mistake and the bot will edit it's initial response.

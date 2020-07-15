@@ -104,14 +104,14 @@ class Run(commands.Cog, name='CodeExecution'):
             '\n\n**You can run code like this:**\n'
             '/run <language>\ncommand line parameters (optional) - 1 per line\n'
             '\\`\\`\\`\nyour code\n\\`\\`\\`\n'
-            '\n**Support:**\n'
-            'Provided by the EngineerMan Discord Server\n'
+            '\n**Provided by the EngineerMan Discord Server:**\n'
             'visit -> **emkc.org/run** to get it in your own server\n'
             'visit -> **discord.gg/engineerman** for more info'
         )
 
-        e = Embed(title='I can execute code right here in Discord!',
+        e = Embed(title='I can execute code right here in Discord! (click here for instructions)',
                   description=run_instructions,
+                  url='https://github.com/engineer-man/piston-bot#how-to-use',
                   color=0x2ECC71)
         # e.set_thumbnail(
         #     url='https://cdn.discordapp.com/avatars/473160828502409217/1789e1e10d429ff4ef37d863433e684e.png'
