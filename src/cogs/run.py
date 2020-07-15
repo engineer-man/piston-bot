@@ -124,7 +124,7 @@ class Run(commands.Cog, name='CodeExecution'):
         """Run some code
         Type "/run" for instructions"""
         await ctx.trigger_typing()
-        if not language:
+        if not language or '```' not in ctx.message.content:
             await self.send_howto(ctx)
             return
         api_response = await self.get_api_response(ctx, language)
