@@ -17,6 +17,7 @@ from datetime import datetime
 from os import path, listdir
 from discord import Embed
 from discord.ext import commands
+from discord.utils import escape_mentions
 
 
 class Management(commands.Cog, name='Management'):
@@ -340,7 +341,7 @@ class Management(commands.Cog, name='Management'):
     async def show_servers(self, ctx):
         await ctx.send(
             f'**I am active in {len(self.client.guilds)} Servers**: ' +
-            ', '.join([str(g) for g in self.client.guilds])
+            escape_mentions(', '.join([str(g) for g in self.client.guilds]))
         )
 
     # ----------------------------------------------
