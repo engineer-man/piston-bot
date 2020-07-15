@@ -74,7 +74,10 @@ class Run(commands.Cog, name='CodeExecution'):
             return '`No code or invalid code present`'
 
         args = [x for x in message[0].split('\n')[1:] if x]
-        source = message[1].lstrip(language).strip()
+        if message[1].startswith(language):
+            source = message[1].lstrip(language).strip()
+        else:
+            source = message[1].strip()
         language = self.languages[language]
         data = {'language': language, 'source': source, 'args': args}
 
