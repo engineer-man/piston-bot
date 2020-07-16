@@ -11,7 +11,7 @@ import json
 from discord import Embed
 from discord.ext import commands
 from discord.utils import escape_mentions
-from .utils.codeswap import codeswap
+from .utils.codeswap import add_boilerplate
 
 
 class Run(commands.Cog, name='CodeExecution'):
@@ -80,7 +80,7 @@ class Run(commands.Cog, name='CodeExecution'):
             source = message[1].lstrip(language).strip()
         else:
             source = message[1].strip()
-        source = codeswap(language, source)
+        source = add_boilerplate(language, source)
         language = self.languages[language]
         data = {'language': language, 'source': source, 'args': args}
 
