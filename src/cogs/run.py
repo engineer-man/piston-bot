@@ -92,10 +92,15 @@ class Run(commands.Cog, name='CodeExecution'):
             return f'`Sorry, execution problem - Invalid status {response.status}`'
         if r['output'] is None:
             return f'`Sorry, execution problem - Invalid Output received`'
+
+        output = escape_mentions('\n'.join(r['output'].split('\n')[:30]))
+        if len(output) > 1945:
+            output = output[:1945] + '[...]'
+
         return (
             f'Here is your output {ctx.author.mention}\n'
             + '```\n'
-            + escape_mentions('\n'.join(r['output'].split('\n')[:30]))
+            + output
             + '```'
         )
 
@@ -117,11 +122,8 @@ class Run(commands.Cog, name='CodeExecution'):
                   description=run_instructions,
                   url='https://github.com/engineer-man/piston-bot#how-to-use',
                   color=0x2ECC71)
-        # e.set_thumbnail(
-        #     url='https://cdn.discordapp.com/avatars/473160828502409217/1789e1e10d429ff4ef37d863433e684e.png'
-        # )
+
         await ctx.send(embed=e)
-        return
 
     @commands.command()
     async def run(self, ctx, language: typing.Optional[str] = None):
@@ -149,6 +151,10 @@ class Run(commands.Cog, name='CodeExecution'):
             await msg_to_edit.edit(content=api_response)
         except KeyError:
             return
+        except Exception as e:
+            msg_to_edit = self.last_run_outputs[ctx.author.id]
+            await msg_to_edit.edit(content=self.client.error_string)
+            raise e
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):

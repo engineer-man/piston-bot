@@ -80,7 +80,7 @@ class Management(commands.Cog, name='Management'):
 
         # In case of an unhandled error -> Save the error + current datetime + ctx + original text
         # so it can be accessed later with the error command
-        await ctx.send('Sorry, something went wrong. The Error was saved - we will look into it.')
+        await ctx.send(self.client.error_string)
         self.client.last_errors.append((error, datetime.utcnow(), ctx, ctx.message.content))
         await self.client.change_presence(activity=self.client.error_activity)
 
