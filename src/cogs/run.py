@@ -11,6 +11,7 @@ import json
 from discord import Embed
 from discord.ext import commands
 from discord.utils import escape_mentions
+import codeswap
 
 
 class Run(commands.Cog, name='CodeExecution'):
@@ -79,6 +80,7 @@ class Run(commands.Cog, name='CodeExecution'):
             source = message[1].lstrip(language).strip()
         else:
             source = message[1].strip()
+        source = codeswap.swap(language, source)
         language = self.languages[language]
         data = {'language': language, 'source': source, 'args': args}
 
