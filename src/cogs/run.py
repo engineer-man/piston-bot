@@ -5,13 +5,13 @@ Commands:
     run            Run code using the Piston API
 
 """
-
+# pylint: disable=E0402
 import typing
 import json
 from discord import Embed
 from discord.ext import commands
 from discord.utils import escape_mentions
-import codeswap
+from .utils.codeswap import codeswap
 
 
 class Run(commands.Cog, name='CodeExecution'):
@@ -80,7 +80,7 @@ class Run(commands.Cog, name='CodeExecution'):
             source = message[1].lstrip(language).strip()
         else:
             source = message[1].strip()
-        source = codeswap.swap(language, source)
+        source = codeswap(language, source)
         language = self.languages[language]
         data = {'language': language, 'source': source, 'args': args}
 
