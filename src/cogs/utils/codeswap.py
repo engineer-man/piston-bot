@@ -5,14 +5,14 @@ def add_boilerplate(language, source):
         return source
 
 
-def for_java(inp):
-    if 'public class' in inp:
-        return inp
+def for_java(source):
+    if 'public class' in source:
+        return source
 
     imports = []
     code = ['public class temp extends Object {public static void main(String[] args) {']
 
-    lines = inp.replace(';', ';\n').split('\n')
+    lines = source.replace(';', ';\n').split('\n')
     for line in lines:
         if line.lstrip().startswith('import'):
             imports.append(line)
