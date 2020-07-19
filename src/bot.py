@@ -42,7 +42,7 @@ class PistonBot(Bot):
         await client.change_presence(activity=self.error_activity)
 
 client = PistonBot(
-    command_prefix=('='),
+    command_prefix=('/'),
     description='Hello, I can run code!',
     max_messages=15000
 )
