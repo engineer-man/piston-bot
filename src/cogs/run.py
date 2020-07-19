@@ -159,7 +159,6 @@ class Run(commands.Cog, name='CodeExecution'):
 
     @commands.command()
     async def run(self, ctx, language: typing.Optional[str] = None):
-        raise commands.CommandError('Test Error')
         """Run some code
         Type "/run" for instructions"""
         await ctx.trigger_typing()
