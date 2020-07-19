@@ -8,11 +8,14 @@ Commands:
 # pylint: disable=E0402
 import typing
 import json
+import sys
+from datetime import datetime
 from discord import Embed
 from discord.ext import commands
 from discord.utils import escape_mentions
 from .utils.codeswap import add_boilerplate
 
+# DEBUG = True
 
 class Run(commands.Cog, name='CodeExecution'):
     def __init__(self, client):
@@ -83,21 +86,53 @@ class Run(commands.Cog, name='CodeExecution'):
         source = add_boilerplate(language, source)
         language = self.languages[language]
         data = {'language': language, 'source': source, 'args': args}
+        headers = {'Authorization': self.client.config["emkc_key"]}
 
+        # Call piston API
+        # if DEBUG:
+        #     await ctx.send('```DEBUG:\nSending Source to Piston\n' + str(data) + '```')
         async with self.client.session.post(
             'https://emkc.org/api/v1/piston/execute',
-            headers={'Authorization': self.client.config["emkc_key"]},
+            headers=headers,
             data=json.dumps(data)
         ) as response:
             r = await response.json()
         if not response.status == 200:
-            return f'`Sorry, execution problem - Invalid status {response.status}`'
+            raise commands.CommandError(f'ERROR calling Piston API. {response.status}')
         if r['output'] is None:
-            return f'`Sorry, execution problem - Invalid Output received`'
+            raise commands.CommandError(f'ERROR calling Piston API. No output received')
 
         output = escape_mentions('\n'.join(r['output'].split('\n')[:30]))
         if len(output) > 1945:
             output = output[:1945] + '[...]'
+
+        # Logging
+        logging_data = {
+            'server': ctx.guild.name,
+            'server_id': str(ctx.guild.id),
+            'user': f'{ctx.author.name}#{ctx.author.discriminator}',
+            'user_id': str(ctx.author.id),
+            'language': language,
+            'source': source
+        }
+        # if DEBUG:
+        #     await ctx.send('```DEBUG:\nSending Log\n' + str(logging_data) + '```')
+
+        async with self.client.session.post(
+            'https://emkc.org/api/internal/piston/log',
+            headers=headers,
+            data=json.dumps(logging_data)
+        ) as response:
+            if response.status != 200:
+                self.client.last_errors.append((
+                    commands.CommandError(f'Error sending log. Status: {response.status}'),
+                    datetime.utcnow(),
+                    ctx,
+                    ctx.message.content)
+                )
+                await self.client.change_presence(activity=self.client.error_activity)
+
+
 
         return (
             f'Here is your output {ctx.author.mention}\n'
