@@ -356,7 +356,7 @@ class Management(commands.Cog, name='Management'):
     @git.command(
         name='pull',
     )
-    async def pull(self, ctx):
+    async def pull(self, ctx, noreload: typing.Optional[str] = None):
         """Pull the latest changes from github"""
         await ctx.trigger_typing()
         try:
@@ -365,6 +365,9 @@ class Management(commands.Cog, name='Management'):
             await ctx.send('```git\n' + output + '\n```')
         except Exception as e:
             return await ctx.send(str(e))
+
+        if noreload is not None:
+            return
 
         _cogs = [f'cogs.{i}' for i in self.cog_re.findall(output)]
         active_cogs = [i for i in _cogs if i in self.client.extensions]
