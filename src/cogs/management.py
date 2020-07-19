@@ -78,11 +78,9 @@ class Management(commands.Cog, name='Management'):
             await ctx.send('`Unexpected quote encountered`')
             return
 
-        # In case of an unhandled error -> Save the error + current datetime + ctx + original text
-        # so it can be accessed later with the error command
+        # In case of an unhandled error -> Save the error so it can be accessed later
         await ctx.send(self.client.error_string)
-        self.client.last_errors.append((error, datetime.utcnow(), ctx, ctx.message.content))
-        await self.client.change_presence(activity=self.client.error_activity)
+        await self.client.log_error(error, ctx)
 
         print(f'Ignoring exception in command {ctx.command}:', flush=True)
         traceback.print_exception(
@@ -127,7 +125,7 @@ class Management(commands.Cog, name='Management'):
         try:
             self.client.load_extension(target_extension)
         except Exception as e:
-            self.client.last_errors.append((e, datetime.utcnow(), ctx))
+            await self.client.log_error(e, ctx)
             await ctx.send(f'```py\n{type(e).__name__}: {str(e)}\n```')
             return
         await ctx.send(f'```css\nExtension [{target_extension}] loaded.```')
@@ -185,7 +183,7 @@ class Management(commands.Cog, name='Management'):
                 self.client.reload_extension(ext)
                 result.append(f'Extension [{ext}] reloaded.')
             except Exception as e:
-                self.client.last_errors.append((e, datetime.utcnow(), ctx))
+                await self.client.log_error(e, ctx)
                 result.append(f'#ERROR loading [{ext}]')
                 continue
         result = '\n'.join(result)
@@ -332,7 +330,7 @@ class Management(commands.Cog, name='Management'):
                       description=orig_content)
             e.set_footer(text=error_source.author.display_name,
                          icon_url=error_source.author.avatar_url)
-        await ctx.send(embed=e)
+            await ctx.send(embed=e)
 
     @commands.command(
         name='servers',

@@ -8,8 +8,6 @@ Commands:
 # pylint: disable=E0402
 import typing
 import json
-import sys
-from datetime import datetime
 from discord import Embed
 from discord.ext import commands
 from discord.utils import escape_mentions
@@ -124,13 +122,10 @@ class Run(commands.Cog, name='CodeExecution'):
             data=json.dumps(logging_data)
         ) as response:
             if response.status != 200:
-                self.client.last_errors.append((
+                await self.client.log_error(
                     commands.CommandError(f'Error sending log. Status: {response.status}'),
-                    datetime.utcnow(),
-                    ctx,
-                    ctx.message.content)
+                    ctx
                 )
-                await self.client.change_presence(activity=self.client.error_activity)
 
 
 
@@ -164,6 +159,7 @@ class Run(commands.Cog, name='CodeExecution'):
 
     @commands.command()
     async def run(self, ctx, language: typing.Optional[str] = None):
+        raise commands.CommandError('Test Error')
         """Run some code
         Type "/run" for instructions"""
         await ctx.trigger_typing()

@@ -6,7 +6,7 @@ import sys
 import traceback
 from datetime import datetime
 from os import path, listdir
-from discord.ext.commands import Bot
+from discord.ext.commands import Bot, Context
 from discord import Activity, Message
 from aiohttp import ClientSession
 
@@ -18,6 +18,9 @@ class PistonBot(Bot):
         with open('../state/config.json') as conffile:
             self.config = json.load(conffile)
         self.last_errors = []
+        self.default_activity = Activity(name='emkc.org/run | /run', type=0)
+        self.error_activity = Activity(name='!emkc.org/run | /run', type=0)
+        self.error_string = 'Sorry, something went wrong. We will look into it.'
 
     async def start(self, *args, **kwargs):
         self.session = ClientSession()
@@ -30,16 +33,21 @@ class PistonBot(Bot):
     def user_is_admin(self, user):
         return user.id in self.config['admins']
 
+    async def log_error(self, error, origin):
+        if isinstance(origin, Context):
+            content = origin.message.content
+        elif isinstance(origin, Message):
+            content = origin.content
+        self.last_errors.append((error, datetime.utcnow(), origin, content))
+        await client.change_presence(activity=self.error_activity)
 
 client = PistonBot(
-    command_prefix=('/'),
+    command_prefix=('='),
     description='Hello, I can run code!',
     max_messages=15000
 )
 
-client.default_activity = Activity(name='emkc.org/run | /run', type=0)
-client.error_activity = Activity(name='!emkc.org/run | /run', type=0)
-client.error_string = 'Sorry, something went wrong. The error was saved - we will look into it.'
+
 
 STARTUP_EXTENSIONS = []
 for file in listdir(path.join(path.dirname(__file__), 'cogs/')):
@@ -79,8 +87,8 @@ async def on_error(event_method, *args, **kwargs):
     if len(args) > 1:
         a1, a2, *_ = args
         if isinstance(a1, Message) and isinstance(a2, Message):
-            client.last_errors.append((sys.exc_info()[1], datetime.utcnow(), a2, a2.content))
-        await client.change_presence(activity=client.error_activity)
+            await client.log_error(sys.exc_info()[1], a2)
+
 
 client.remove_command('help')
 
