@@ -41,12 +41,12 @@ class PistonBot(Bot):
         self.last_errors.append((error, datetime.utcnow(), origin, content))
         await client.change_presence(activity=self.error_activity)
 
+
 client = PistonBot(
     command_prefix=('/'),
     description='Hello, I can run code!',
     max_messages=15000
 )
-
 
 
 STARTUP_EXTENSIONS = []

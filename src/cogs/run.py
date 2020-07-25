@@ -15,6 +15,7 @@ from .utils.codeswap import add_boilerplate
 
 # DEBUG = True
 
+
 class Run(commands.Cog, name='CodeExecution'):
     def __init__(self, client):
         self.client = client
@@ -82,6 +83,10 @@ class Run(commands.Cog, name='CodeExecution'):
         else:
             source = message[1].strip()
         source = add_boilerplate(language, source)
+
+        if not source:
+            return (f'Sorry {ctx.author.mention} - no source code found')
+
         language = self.languages[language]
         data = {'language': language, 'source': source, 'args': args}
         headers = {'Authorization': self.client.config["emkc_key"]}
@@ -126,8 +131,6 @@ class Run(commands.Cog, name='CodeExecution'):
                     commands.CommandError(f'Error sending log. Status: {response.status}'),
                     ctx
                 )
-
-
 
         return (
             f'Here is your output {ctx.author.mention}\n'
