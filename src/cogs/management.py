@@ -302,7 +302,8 @@ class Management(commands.Cog, name='Management'):
         response = [f'`Error occured {delta_str}`']
         if error_source is not None:
             response.append(
-                f'`Server:{error_source.guild.name} | Channel: {error_source.channel.name}`'
+                f'`Server: {error_source.guild.name if error_source.guild else None} | '
+                f'Channel: {error_source.channel.name if error_source.channel else None}`'
             )
             response.append(
                 f'`User: {error_source.author.name}#{error_source.author.discriminator}`'
