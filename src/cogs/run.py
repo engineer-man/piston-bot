@@ -112,14 +112,14 @@ class Run(commands.Cog, name='CodeExecution'):
         # Logging
         logging_data = {
             'server': ctx.guild.name if ctx.guild else 'DMChannel',
-            'server_id': str(ctx.guild.id) if ctx.guild else 0,
+            'server_id': str(ctx.guild.id) if ctx.guild else '0',
             'user': f'{ctx.author.name}#{ctx.author.discriminator}',
             'user_id': str(ctx.author.id),
             'language': language,
             'source': source
         }
         # if DEBUG:
-        #     await ctx.send('```DEBUG:\nSending Log\n' + str(logging_data) + '```')
+        # await ctx.send('```DEBUG:\nSending Log\n' + str(logging_data) + '```')
 
         async with self.client.session.post(
             'https://emkc.org/api/internal/piston/log',

@@ -304,8 +304,7 @@ class Management(commands.Cog, name='Management'):
             guild = error_source.guild
             channel = error_source.channel
             response.append(
-                f'`Server: {guild.name if guild else None} | '
-                f'Channel: {channel.name if isinstance(channel, TextChannel) else None}`'
+                f'`Server:{guild.name} | Channel: {channel.name}`' if guild else '`In DMChannel`'
             )
             response.append(
                 f'`User: {error_source.author.name}#{error_source.author.discriminator}`'
