@@ -111,8 +111,8 @@ class Run(commands.Cog, name='CodeExecution'):
 
         # Logging
         logging_data = {
-            'server': ctx.guild.name,
-            'server_id': str(ctx.guild.id),
+            'server': ctx.guild.name if ctx.guild else 'DMChannel',
+            'server_id': str(ctx.guild.id) if ctx.guild else 0,
             'user': f'{ctx.author.name}#{ctx.author.discriminator}',
             'user_id': str(ctx.author.id),
             'language': language,
