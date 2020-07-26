@@ -15,7 +15,7 @@ import subprocess
 import re
 from datetime import datetime
 from os import path, listdir
-from discord import Embed
+from discord import Embed, TextChannel
 from discord.ext import commands
 from discord.utils import escape_mentions
 
@@ -301,9 +301,11 @@ class Management(commands.Cog, name='Management'):
         )
         response = [f'`Error occured {delta_str}`']
         if error_source is not None:
+            guild = error_source.guild
+            channel = error_source.channel
             response.append(
-                f'`Server: {error_source.guild.name if error_source.guild else None} | '
-                f'Channel: {error_source.channel.name if error_source.channel else None}`'
+                f'`Server: {guild.name if guild else None} | '
+                f'Channel: {channel.name if isinstance(channel, TextChannel) else None}`'
             )
             response.append(
                 f'`User: {error_source.author.name}#{error_source.author.discriminator}`'
