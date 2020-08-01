@@ -8,7 +8,7 @@ Commands:
 # pylint: disable=E0402
 import typing
 import json
-from discord import Embed
+from discord import Embed, errors as discord_errors
 from discord.ext import commands
 from discord.utils import escape_mentions
 from .utils.codeswap import add_boilerplate
@@ -180,11 +180,13 @@ class Run(commands.Cog, name='CodeExecution'):
             return
         if not language:
             return
-        api_response = await self.get_api_response(ctx, language)
         try:
             msg_to_edit = self.last_run_outputs[ctx.author.id]
+            api_response = await self.get_api_response(ctx, language)
             await msg_to_edit.edit(content=api_response)
         except KeyError:
+            return
+        except discord_errors.NotFound:
             return
         except Exception as e:
             msg_to_edit = self.last_run_outputs[ctx.author.id]

@@ -15,7 +15,7 @@ import subprocess
 import re
 from datetime import datetime
 from os import path, listdir
-from discord import Embed, TextChannel
+from discord import Embed
 from discord.ext import commands
 from discord.utils import escape_mentions
 
