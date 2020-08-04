@@ -23,7 +23,7 @@ def for_java(source):
             code.append(line)
 
     code.append('}}')
-    return ''.join(imports + code)
+    return '\n'.join(imports + code)
 
 
 def for_rust(source):
@@ -40,4 +40,4 @@ def for_rust(source):
             code.append(line)
 
     code.append('}')
-    return ''.join(imports + code)
+    return '\n'.join(imports + code)
