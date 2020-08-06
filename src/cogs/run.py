@@ -69,13 +69,14 @@ class Run(commands.Cog, name='CodeExecution'):
 
     async def get_api_response(self, ctx, language):
         message = [s.strip() for s in ctx.message.content.replace('```', '```\n').split('```')]
+
+        if len(message) != 3:
+            raise commands.BadArgument('No code or invalid code present')
+
         if language not in self.languages:
             language = message[1].split()[0]
             if language not in self.languages:
-                return f'`Unsupported language: {language}`'
-
-        if len(message) < 3:
-            return '`No code or invalid code present`'
+                raise commands.BadArgument(f'Unsupported language: {language}')
 
         args = [x for x in message[0].split('\n')[1:] if x]
         if message[1].startswith(language):
@@ -85,7 +86,7 @@ class Run(commands.Cog, name='CodeExecution'):
         source = add_boilerplate(language, source)
 
         if not source:
-            return (f'Sorry {ctx.author.mention} - no source code found')
+            raise commands.BadArgument(f'No source code found')
 
         language = self.languages[language]
         data = {'language': language, 'source': source, 'args': args}
