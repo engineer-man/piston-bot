@@ -41,6 +41,13 @@ You can edit your last **/run** message if you make a mistake and the bot will e
 
 # What's new
 
+## 2020-08-04
+Made writing rust code "snippets" easier (Thanks https://github.com/UsairimIsani)
+```rust
+fn main() { }
+```
+will be automatically created if it is not present in the provided code.
+
 ## 2020-07-16
 Made writing java code "snippets" easier (Thanks https://github.com/Minecraftian14)
 
