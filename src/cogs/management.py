@@ -13,11 +13,11 @@ import traceback
 import typing
 import subprocess
 import re
-from datetime import datetime
+from io import BytesIO
+from datetime import datetime, timezone
 from os import path, listdir
-from discord import Embed
+from discord import Embed, File
 from discord.ext import commands
-from discord.utils import escape_mentions
 
 
 class Management(commands.Cog, name='Management'):
@@ -339,7 +339,14 @@ class Management(commands.Cog, name='Management'):
         hidden=True,
     )
     async def show_servers(self, ctx):
-        await ctx.send(f'**I am active in {len(self.client.guilds)} Servers**')
+        to_send = '\n'.join(str(guild) for guild in self.client.guilds)
+        await ctx.send(
+            f'**I am active in {len(self.client.guilds)} Servers**',
+            file=File(
+                fp=BytesIO(to_send.encode()),
+                filename=f'servers_{datetime.now(tz=timezone.utc).isoformat()}.txt'
+            )
+        )
 
     # ----------------------------------------------
     # Command to pull the latest changes from github
