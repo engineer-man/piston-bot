@@ -151,7 +151,8 @@ class Run(commands.Cog, name='CodeExecution'):
             '\\`\\`\\`\nyour code\n\\`\\`\\`\n'
             '\n**Provided by the EngineerMan Discord Server:**\n'
             'visit -> **emkc.org/run** to get it in your own server\n'
-            'visit -> **discord.gg/engineerman** for more info'
+            'visit -> **discord.gg/engineerman** for more info\n'
+            'visit -> **https://top.gg/bot/730885117656039466** and vote if you found this bot helpful'
         )
 
         e = Embed(title='I can execute code right here in Discord! (click here for instructions)',
