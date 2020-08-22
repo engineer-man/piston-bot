@@ -339,10 +339,7 @@ class Management(commands.Cog, name='Management'):
         hidden=True,
     )
     async def show_servers(self, ctx):
-        await ctx.send(
-            f'**I am active in {len(self.client.guilds)} Servers**: ' +
-            escape_mentions(', '.join([str(g) for g in self.client.guilds]))
-        )
+        await ctx.send(f'**I am active in {len(self.client.guilds)} Servers**')
 
     # ----------------------------------------------
     # Command to pull the latest changes from github
