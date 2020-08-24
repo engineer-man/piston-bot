@@ -78,6 +78,11 @@ class Management(commands.Cog, name='Management'):
             await ctx.send('`Unexpected quote encountered`')
             return
 
+        if isinstance(error, commands.InvalidEndOfQuotedStringError):
+            await ctx.send('`Invalid character after quote`')
+            return
+
+
         # In case of an unhandled error -> Save the error so it can be accessed later
         await ctx.send(self.client.error_string)
         await self.client.log_error(error, ctx)
