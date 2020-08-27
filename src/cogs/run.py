@@ -68,7 +68,8 @@ class Run(commands.Cog, name='CodeExecution'):
         self.last_run_outputs = dict()
 
     async def get_api_response(self, ctx, language):
-        message = [s.strip() for s in ctx.message.content.replace('```', '```\n').split('```')]
+        message = [s.strip() for s in ctx.message.content.replace('```', ' ```\n').split('```')]
+        language = language.replace('```', '')
 
         if len(message) != 3:
             raise commands.BadArgument('No code or invalid code present')
@@ -190,8 +191,10 @@ class Run(commands.Cog, name='CodeExecution'):
             return
         except discord_errors.NotFound:
             return
+        except commands.BadArgument as e:
+            await msg_to_edit.edit(content=str(e))
+            return
         except Exception as e:
-            msg_to_edit = self.last_run_outputs[ctx.author.id]
             await msg_to_edit.edit(content=self.client.error_string)
             raise e
 
