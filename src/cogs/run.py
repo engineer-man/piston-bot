@@ -64,8 +64,8 @@ class Run(commands.Cog, name='CodeExecution'):
             'ts': 'typescript',
             'typescript': 'typescript',
         }
-        self.last_run_command_msg = dict()
-        self.last_run_outputs = dict()
+        self.run_command_store = dict()
+        self.run_output_store = dict()
 
     async def get_api_response(self, ctx, language):
         message = [s.strip() for s in ctx.message.content.replace('```', ' ```\n').split('```')]
@@ -173,48 +173,45 @@ class Run(commands.Cog, name='CodeExecution'):
             return
         api_response = await self.get_api_response(ctx, language)
         msg = await ctx.send(api_response)
-        self.last_run_command_msg[ctx.author.id] = ctx.message
-        self.last_run_outputs[ctx.author.id] = msg
+        self.run_command_store[ctx.author.id] = ctx.message
+        self.run_output_store[ctx.author.id] = msg
 
     @commands.command(hidden=True)
     async def edit_last_run(self, ctx, language: typing.Optional[str] = None):
         """Run some edited code"""
-        if not ctx.invoked_with == 'run':
-            return
         if not language:
             return
         try:
-            msg_to_edit = self.last_run_outputs[ctx.author.id]
+            msg_to_edit = self.run_output_store[ctx.author.id]
             api_response = await self.get_api_response(ctx, language)
             await msg_to_edit.edit(content=api_response)
         except KeyError:
+            # Message no longer exists in store
             return
         except discord_errors.NotFound:
+            # Message no longer exists in discord
             return
         except commands.BadArgument as e:
+            # Edited message probably has bad formatting
             await msg_to_edit.edit(content=str(e))
             return
-        except Exception as e:
-            await msg_to_edit.edit(content=self.client.error_string)
-            raise e
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
         if after.author.bot:
             return
-        if before.author.id not in self.last_run_command_msg:
+        if before.author.id not in self.run_command_store:
             return
-        if before.id != self.last_run_command_msg[before.author.id].id:
+        if before.id != self.run_command_store[before.author.id].id:
             return
-        content = after.content.lower()
         prefixes = await self.client.get_prefix(after)
         if isinstance(prefixes, str):
             prefixes = [prefixes, ]
-        if not any(content.startswith(f'{prefix}run') for prefix in prefixes):
-            return
-        ctx = await self.client.get_context(after)
-        if ctx.valid:
-            await self.client.get_command('edit_last_run').invoke(ctx)
+        for prefix in prefixes:
+            if after.content.lower().startswith(f'{prefix}run '):
+                after.content = after.content.replace(f'{prefix}run', f'{prefix}edit_last_run ')
+                await self.client.process_commands(after)
+                break
 
 
 def setup(client):
