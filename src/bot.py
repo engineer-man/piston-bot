@@ -48,7 +48,7 @@ client = PistonBot(
     description='Hello, I can run code!',
     max_messages=15000
 )
-
+client.remove_command('help')
 
 STARTUP_EXTENSIONS = []
 for file in listdir(path.join(path.dirname(__file__), 'cogs/')):
@@ -87,8 +87,6 @@ async def on_error(event_method, *args, **kwargs):
     # Saving the error to be inspected later
     await client.log_error(sys.exc_info()[1], 'DEFAULT HANDLER:' + event_method)
 
-
-client.remove_command('help')
 
 client.run()
 print('PistonBot has exited')

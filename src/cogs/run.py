@@ -8,6 +8,7 @@ Commands:
 # pylint: disable=E0402
 import typing
 import json
+import re
 from discord import Embed, errors as discord_errors
 from discord.ext import commands
 from discord.utils import escape_mentions
@@ -66,28 +67,29 @@ class Run(commands.Cog, name='CodeExecution'):
         }
         self.run_command_store = dict()
         self.run_output_store = dict()
+        self.run_regex = re.compile(
+            r'/(?:edit_last_)?run\s*(?: (?P<language>\S+)\s*|\s*)(?:\n(?P<args>(?:.*\n)*?)\s*|\s*)```(?:(?P<syntax>\S+)\n\s*|\s*)(?P<source>(?:.*\n?)+?)```'
+        )
 
-    async def get_api_response(self, ctx, language):
-        message = [s.strip() for s in ctx.message.content.replace('```', ' ```\n').split('```')]
-        language = language.replace('```', '')
+    async def get_run_output(self, ctx):
+        match = self.run_regex.search(ctx.message.content)
+        if not match:
+            raise commands.BadArgument('Invalid command format')
+        language, args, syntax, source = match.groups()
 
-        if len(message) != 3:
-            raise commands.BadArgument('No code or invalid code present')
+        if args:
+            args = [arg for arg in args.strip().split('\n') if arg]
+
+        if not language:
+            language = syntax
 
         if language not in self.languages:
-            language = message[1].split()[0]
-            if language not in self.languages:
-                raise commands.BadArgument(f'Unsupported language: {language}')
-
-        args = [x for x in message[0].split('\n')[1:] if x]
-        if message[1].startswith(language):
-            source = message[1].lstrip(language).strip()
-        else:
-            source = message[1].strip()
-        source = add_boilerplate(language, source)
+            raise commands.BadArgument(f'Unsupported language: {language}')
 
         if not source:
             raise commands.BadArgument(f'No source code found')
+
+        source = add_boilerplate(language, source)
 
         language = self.languages[language]
         data = {'language': language, 'source': source, 'args': args}
@@ -141,6 +143,70 @@ class Run(commands.Cog, name='CodeExecution'):
             + '```'
         )
 
+    @commands.command()
+    async def run(self, ctx, *, source=None):
+        """Run some code
+        Type "/run" or "/help" for instructions"""
+        await ctx.trigger_typing()
+        if not source:
+            await self.send_howto(ctx)
+            return
+        try:
+            run_output = await self.get_run_output(ctx)
+            msg = await ctx.send(run_output)
+        except commands.BadArgument as error:
+            embed = Embed(
+                title='Error',
+                description=str(error),
+                color=0x2ECC71
+            )
+            msg = await ctx.send(embed=embed)
+        self.run_command_store[ctx.author.id] = ctx.message
+        self.run_output_store[ctx.author.id] = msg
+
+    @commands.command(hidden=True)
+    async def edit_last_run(self, ctx, *, source=None):
+        """Run some edited code and edit previous message"""
+        if not source:
+            return
+        try:
+            msg_to_edit = self.run_output_store[ctx.author.id]
+            run_output = await self.get_run_output(ctx)
+            await msg_to_edit.edit(content=run_output, embed=None)
+        except KeyError:
+            # Message no longer exists in output store
+            # (can only happen if smartass user calls this command directly instead of editing)
+            return
+        except discord_errors.NotFound:
+            # Message no longer exists in discord
+            return
+        except commands.BadArgument as error:
+            # Edited message probably has bad formatting
+            embed = Embed(
+                title='Error',
+                description=str(error),
+                color=0x2ECC71
+            )
+            await msg_to_edit.edit(content=None, embed=embed)
+            return
+
+    @commands.Cog.listener()
+    async def on_message_edit(self, before, after):
+        if after.author.bot:
+            return
+        if before.author.id not in self.run_command_store:
+            return
+        if before.id != self.run_command_store[before.author.id].id:
+            return
+        prefixes = await self.client.get_prefix(after)
+        if isinstance(prefixes, str):
+            prefixes = [prefixes, ]
+        for prefix in prefixes:
+            if after.content.lower().startswith(f'{prefix}run'):
+                after.content = after.content.replace(f'{prefix}run', f'{prefix}edit_last_run')
+                await self.client.process_commands(after)
+                break
+
     async def send_howto(self, ctx):
         languages = sorted(set(self.languages.values()))
 
@@ -163,55 +229,9 @@ class Run(commands.Cog, name='CodeExecution'):
 
         await ctx.send(embed=e)
 
-    @commands.command()
-    async def run(self, ctx, language: typing.Optional[str] = None):
-        """Run some code
-        Type "/run" for instructions"""
-        await ctx.trigger_typing()
-        if not language or '```' not in ctx.message.content:
-            await self.send_howto(ctx)
-            return
-        api_response = await self.get_api_response(ctx, language)
-        msg = await ctx.send(api_response)
-        self.run_command_store[ctx.author.id] = ctx.message
-        self.run_output_store[ctx.author.id] = msg
-
-    @commands.command(hidden=True)
-    async def edit_last_run(self, ctx, language: typing.Optional[str] = None):
-        """Run some edited code"""
-        if not language:
-            return
-        try:
-            msg_to_edit = self.run_output_store[ctx.author.id]
-            api_response = await self.get_api_response(ctx, language)
-            await msg_to_edit.edit(content=api_response)
-        except KeyError:
-            # Message no longer exists in store
-            return
-        except discord_errors.NotFound:
-            # Message no longer exists in discord
-            return
-        except commands.BadArgument as e:
-            # Edited message probably has bad formatting
-            await msg_to_edit.edit(content=str(e))
-            return
-
-    @commands.Cog.listener()
-    async def on_message_edit(self, before, after):
-        if after.author.bot:
-            return
-        if before.author.id not in self.run_command_store:
-            return
-        if before.id != self.run_command_store[before.author.id].id:
-            return
-        prefixes = await self.client.get_prefix(after)
-        if isinstance(prefixes, str):
-            prefixes = [prefixes, ]
-        for prefix in prefixes:
-            if after.content.lower().startswith(f'{prefix}run '):
-                after.content = after.content.replace(f'{prefix}run', f'{prefix}edit_last_run ')
-                await self.client.process_commands(after)
-                break
+    @commands.command(name='help')
+    async def send_help(self, ctx):
+        await self.send_howto(ctx)
 
 
 def setup(client):
