@@ -9,7 +9,6 @@ Commands:
     error           print the traceback of the last unhandled error to chat
 """
 import json
-import traceback
 import typing
 import subprocess
 import re

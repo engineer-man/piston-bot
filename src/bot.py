@@ -7,7 +7,7 @@ import traceback
 from datetime import datetime, timezone
 from os import path, listdir
 from discord.ext.commands import Bot, Context
-from discord import Activity, Message
+from discord import Activity
 from aiohttp import ClientSession
 
 

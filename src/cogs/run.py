@@ -6,7 +6,6 @@ Commands:
 
 """
 # pylint: disable=E0402
-import typing
 import json
 import re
 from discord import Embed, errors as discord_errors
