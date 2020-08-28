@@ -4,7 +4,7 @@
 import json
 import sys
 import traceback
-from datetime import datetime
+from datetime import datetime, timezone
 from os import path, listdir
 from discord.ext.commands import Bot, Context
 from discord import Activity, Message
@@ -33,12 +33,13 @@ class PistonBot(Bot):
     def user_is_admin(self, user):
         return user.id in self.config['admins']
 
-    async def log_error(self, error, origin):
-        if isinstance(origin, Context):
-            content = origin.message.content
-        elif isinstance(origin, Message):
-            content = origin.content
-        self.last_errors.append((error, datetime.utcnow(), origin, content))
+    async def log_error(self, error, error_source=None):
+        self.last_errors.append((
+            error,
+            datetime.now(tz=timezone.utc),
+            error_source,
+            error_source.message.content if isinstance(error_source, Context) else None
+        ))
         await client.change_presence(activity=self.error_activity)
 
 
@@ -59,7 +60,7 @@ for extension in reversed(STARTUP_EXTENSIONS):
     try:
         client.load_extension(f'{extension}')
     except Exception as e:
-        client.last_errors.append((e, datetime.utcnow(), None, None))
+        client.last_errors.append((e, datetime.now(tz=timezone.utc), 'Cog INIT', None))
         exc = f'{type(e).__name__}: {e}'
         print(f'Failed to load extension {extension}\n{exc}')
 
@@ -83,11 +84,8 @@ async def on_error(event_method, *args, **kwargs):
     print('Default Handler: Ignoring exception in {}'.format(event_method), file=sys.stderr)
     traceback.print_exc()
     # --------------- custom code below -------------------------------
-    # Saving the error if it resulted from a message edit
-    if len(args) > 1:
-        a1, a2, *_ = args
-        if isinstance(a1, Message) and isinstance(a2, Message):
-            await client.log_error(sys.exc_info()[1], a2)
+    # Saving the error to be inspected later
+    await client.log_error(sys.exc_info()[1], 'DEFAULT HANDLER:' + event_method)
 
 
 client.remove_command('help')
