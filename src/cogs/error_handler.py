@@ -9,7 +9,7 @@ Commands:
 import traceback
 import typing
 from datetime import datetime, timezone
-from discord import Embed
+from discord import Embed, errors as discord_errors
 from discord.ext import commands
 
 
@@ -64,7 +64,10 @@ class ErrorHandler(commands.Cog, name='ErrorHandler'):
             return
 
         # In case of an unhandled error -> Save the error so it can be accessed later
-        await ctx.send(self.client.error_string)
+        try:
+            await ctx.send(self.client.error_string)
+        except discord_errors.Forbidden:
+            pass
         await self.client.log_error(error, ctx)
 
         print(f'Ignoring exception in command {ctx.command}:', flush=True)
