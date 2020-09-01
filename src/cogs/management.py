@@ -15,7 +15,7 @@ import re
 from io import BytesIO
 from datetime import datetime, timezone
 from os import path, listdir
-from discord import Embed, File
+from discord import File
 from discord.ext import commands
 
 
