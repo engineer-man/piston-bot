@@ -67,11 +67,11 @@ class Run(commands.Cog, name='CodeExecution'):
         self.run_command_store = dict()
         self.run_output_store = dict()
         self.run_regex = re.compile(
-            r'/(?:edit_last_)?run\s*(?: (?P<language>\S+)\s*|\s*)(?:\n(?P<args>(?:.*\n)*?)\s*|\s*)```(?:(?P<syntax>\S+)\n\s*|\s*)(?P<source>(?:.*\n?)+?)```'
+            r'/(?:edit_last_)?run(?: +(?P<language>\S+)\s*|\s*)(?:\n *(?P<args>(?:[^\n\r\f\v]*\n)*?)\s*|\s*)```(?:(?P<syntax>\S+)\n\s*|\s*)(?P<source>(?:.*\n?)+?)```'
         )
 
     async def get_run_output(self, ctx):
-        print(ctx.message.content, flush=True)
+        print(ctx.message.content, flush=True, end='\n\n')
         match = self.run_regex.search(ctx.message.content)
         if not match:
             raise commands.BadArgument('Invalid command format')
