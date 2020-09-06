@@ -71,6 +71,7 @@ class Run(commands.Cog, name='CodeExecution'):
         )
 
     async def get_run_output(self, ctx):
+        print(ctx.message.content, flush=True)
         match = self.run_regex.search(ctx.message.content)
         if not match:
             raise commands.BadArgument('Invalid command format')
