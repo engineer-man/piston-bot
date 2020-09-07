@@ -181,6 +181,7 @@ class Run(commands.Cog, name='CodeExecution'):
             return
         except discord_errors.NotFound:
             # Message no longer exists in discord
+            del self.run_output_store[ctx.author.id]
             return
         except commands.BadArgument as error:
             # Edited message probably has bad formatting
@@ -189,7 +190,10 @@ class Run(commands.Cog, name='CodeExecution'):
                 description=str(error),
                 color=0x2ECC71
             )
-            await msg_to_edit.edit(content=None, embed=embed)
+            try:
+                await msg_to_edit.edit(content=None, embed=embed)
+            except discord_errors.NotFound:
+                del self.run_output_store[ctx.author.id]
             return
 
     @commands.Cog.listener()
