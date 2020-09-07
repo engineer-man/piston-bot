@@ -67,7 +67,8 @@ class Run(commands.Cog, name='CodeExecution'):
         self.run_command_store = dict()
         self.run_output_store = dict()
         self.run_regex = re.compile(
-            r'/(?:edit_last_)?run(?: +(?P<language>\S+)\s*|\s*)(?:\n(?P<args>(?:[^\n\r\f\v]*\n)*?)\s*|\s*)```(?:(?P<syntax>\S+)\n\s*|\s*)(?:(?P<source>(?:[^\n\r\f\v]*\n)*?)\s*|\s*)```'
+            r'/(?:edit_last_)?run(?: +(?P<language>\S*)\s*|\s*)(?:\n(?P<args>(?:[^\n\r\f\v]*\n)*?)\s*|\s*)```(?:(?P<syntax>\S+)\n\s*|\s*)(?P<source>.*)```',
+            re.DOTALL
         )
 
     async def get_run_output(self, ctx):
