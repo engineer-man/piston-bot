@@ -199,7 +199,7 @@ class ErrorHandler(commands.Cog, name='ErrorHandler'):
         for line in tb.split('\n'):
             num_chars += len(line)
             response.append(line)
-            if num_chars > 1900:
+            if num_chars > 1800:
                 response.append('```')
                 await ctx.send('\n'.join(response))
                 response = ['```python\n']
