@@ -45,6 +45,7 @@ class Run(commands.Cog, name='CodeExecution'):
             'kotlin': 'kotlin',
             'nasm': 'nasm',
             'node': 'javascript',
+            'perl': 'perl',
             'php': 'php',
             'php3': 'php',
             'php4': 'php',
