@@ -9,7 +9,7 @@ Commands:
 import traceback
 import typing
 from datetime import datetime, timezone
-from discord import Embed, DMChannel
+from discord import Embed, DMChannel, errors as discord_errors
 from discord.ext import commands
 
 
@@ -24,8 +24,11 @@ class ErrorHandler(commands.Cog, name='ErrorHandler'):
     async def on_command_error(self, ctx, error):
         if not isinstance(ctx.channel, DMChannel):
             perms = ctx.channel.permissions_for(ctx.guild.get_member(self.client.user.id))
-            if not perms.send_messages:
-                await ctx.author.send("I don't have permission to answer you in this channel.")
+            try:
+                if not perms.send_messages:
+                    await ctx.author.send("I don't have permission to write in this channel.")
+                    return
+            except discord_errors.Forbidden:
                 return
 
             if not perms.embed_links:
