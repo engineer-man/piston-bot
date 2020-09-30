@@ -74,7 +74,6 @@ class Run(commands.Cog, name='CodeExecution'):
     async def get_run_output(self, ctx):
         if ctx.message.content.count('```') != 2:
             raise commands.BadArgument('Invalid command format (missing codeblock?)')
-        print(ctx.message.content, flush=True, end='\n\n')
         match = self.run_regex.search(ctx.message.content)
         if not match:
             raise commands.BadArgument('Invalid command format')
@@ -141,7 +140,7 @@ class Run(commands.Cog, name='CodeExecution'):
 
         return (
             f'Here is your output {ctx.author.mention}\n'
-            + '```\n'
+            + f'```{syntax}\n'
             + output
             + '```'
         )
