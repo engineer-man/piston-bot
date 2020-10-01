@@ -111,9 +111,11 @@ class Run(commands.Cog, name='CodeExecution'):
         if r['output'] is None:
             raise commands.CommandError(f'ERROR calling Piston API. No output received')
 
+        len_syntax = 0 if syntax is None else len(syntax)
+
         output = escape_mentions('\n'.join(r['output'].split('\n')[:30]))
-        if len(output) > 1945:
-            output = output[:1945] + '[...]'
+        if len(output) > 1945-len_syntax:
+            output = output[:1945-len_syntax] + '[...]'
 
         # Logging
         logging_data = {
@@ -140,7 +142,7 @@ class Run(commands.Cog, name='CodeExecution'):
 
         return (
             f'Here is your output {ctx.author.mention}\n'
-            + f'```{syntax}\n'
+            + f'```{syntax or ""}\n'
             + output
             + '```'
         )
