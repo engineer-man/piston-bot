@@ -44,6 +44,7 @@ class Run(commands.Cog, name='CodeExecution'):
             'julia': 'julia',
             'js': 'javascript',
             'kotlin': 'kotlin',
+            'lua': 'lua',
             'nasm': 'nasm',
             'nasm64': 'nasm64',
             'node': 'javascript',
