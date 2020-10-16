@@ -224,11 +224,12 @@ class Management(commands.Cog, name='Management'):
     # Command to stop the bot
     # ----------------------------------------------
     @commands.command(
-        name='shutdown',
+        name='restart',
+        aliases=['shutdown'],
         hidden=True
     )
     async def shutdown(self, ctx):
-        """Stop the bot"""
+        """Stop/Restart the bot"""
         await self.client.close()
 
 
