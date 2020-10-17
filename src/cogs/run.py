@@ -32,11 +32,16 @@ class Run(commands.Cog, name='CodeExecution'):
             'cpp': 'cpp',
             'cs': 'csharp',
             'csharp': 'csharp',
+            'deno': 'deno',
+            'denojs': 'deno',
+            'denots': 'deno',
             'duby': 'ruby',
             'el': 'emacs',
             'elisp': 'emacs',
             'emacs': 'emacs',
             'elixir': 'elixir',
+            'haskell': 'haskell',
+            'hs': 'haskell',
             'go': 'go',
             'java': 'java',
             'javascript': 'javascript',
@@ -227,10 +232,9 @@ class Run(commands.Cog, name='CodeExecution'):
             '\n\n**You can run code like this:**\n'
             '/run <language>\ncommand line parameters (optional) - 1 per line\n'
             '\\`\\`\\`\nyour code\n\\`\\`\\`\n'
-            '\n**Provided by the EngineerMan Discord Server - visit:**\n'
+            '\n**Provided by the Engineer Man Discord Server - visit:**\n'
             '• https://emkc.org/run to get it in your own server\n'
             '• https://discord.gg/engineerman for more info\n'
-            '• https://top.gg/bot/730885117656039466 and vote if you like this bot'
         )
 
         e = Embed(title='I can execute code right here in Discord! (click here for instructions)',
