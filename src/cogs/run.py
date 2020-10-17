@@ -45,6 +45,7 @@ class Run(commands.Cog, name='CodeExecution'):
             'go': 'go',
             'java': 'java',
             'javascript': 'javascript',
+            'jelly': 'jelly',
             'jl': 'julia',
             'julia': 'julia',
             'js': 'javascript',
