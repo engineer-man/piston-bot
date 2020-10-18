@@ -27,6 +27,10 @@ class Run(commands.Cog, name='CodeExecution'):
             'bf': 'brainfuck',
             'brainfuck': 'brainfuck',
             'c': 'c',
+            'lisp': 'lisp',
+            'clisp': 'lisp',
+            'commonlisp': 'lisp',
+            'cl': 'lisp'
             'c#': 'csharp',
             'c++': 'cpp',
             'cpp': 'cpp',
