@@ -54,6 +54,7 @@ class Run(commands.Cog, name='CodeExecution'):
             'nasm': 'nasm',
             'nasm64': 'nasm64',
             'node': 'javascript',
+            'paradoc': 'paradoc',
             'perl': 'perl',
             'php': 'php',
             'php3': 'php',
