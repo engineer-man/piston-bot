@@ -156,8 +156,8 @@ class Run(commands.Cog, name='CodeExecution'):
                 + output
                 + '```'
             )
-        else:
-            return f'Your code ran without output {ctx.author.mention}'
+        
+        return f'Your code ran without output {ctx.author.mention}'
 
     @commands.command()
     async def run(self, ctx, *, source=None):
