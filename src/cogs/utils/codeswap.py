@@ -1,14 +1,13 @@
 def add_boilerplate(language, source):
     if language == 'java':
         return for_java(source)
-    elif language == 'rust':
+    if language == 'rust':
         return for_rust(source)
-    elif language == 'c' or language == 'cpp':
+    if language == 'c' or language == 'cpp':
         return for_c_cpp(source)
-    elif language == 'go':
+    if language == 'go':
         return for_go(source)
-    else:
-        return source
+    return source
 
 def for_go(source):
     if 'main' in source:
