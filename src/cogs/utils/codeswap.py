@@ -5,8 +5,28 @@ def add_boilerplate(language, source):
         return for_rust(source)
     elif language == 'c' or language == 'cpp':
         return for_c_cpp(source)
+    elif language == 'go':
+        return for_go(source)
     else:
         return source
+
+def for_go(source):
+    if 'main' in source:
+        return source
+
+    package = ['package main']
+    imports = []
+    code = ['func main() {']
+
+    lines = source.split('\n')
+    for line in lines:
+        if line.lstrip().startswith('import'):
+            imports.append(line)
+        else:
+            code.append(line)
+
+    code.append('}')
+    return '\n'.join(package + imports + code)
 
 def for_c_cpp(source):
     if 'main' in source:
@@ -25,6 +45,7 @@ def for_c_cpp(source):
 
     code.append('}')
     return '\n'.join(imports + code)
+
 
 def for_java(source):
     if 'public class' in source:
