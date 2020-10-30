@@ -149,12 +149,15 @@ class Run(commands.Cog, name='CodeExecution'):
                     ctx
                 )
 
-        return (
-            f'Here is your output {ctx.author.mention}\n'
-            + f'```{syntax or ""}\n'
-            + output
-            + '```'
-        )
+        if len(output) > 0:
+            return (
+                f'Here is your output {ctx.author.mention}\n'
+                + f'```{syntax or ""}\n'
+                + output
+                + '```'
+            )
+        else:
+            return f'Your code ran without output {ctx.author.mention}'
 
     @commands.command()
     async def run(self, ctx, *, source=None):
