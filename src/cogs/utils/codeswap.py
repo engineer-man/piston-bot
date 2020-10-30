@@ -3,9 +3,28 @@ def add_boilerplate(language, source):
         return for_java(source)
     elif language == 'rust':
         return for_rust(source)
+    elif language == 'c' or language == 'cpp':
+        return for_c_cpp(source)
     else:
         return source
 
+def for_c_cpp(source):
+    if 'main' in source:
+        return source
+
+    imports = []
+    code = ['int main() {']
+
+    lines = source.replace(';', ';\n').split('\n')
+    for line in lines:
+        print(line)
+        if line.lstrip().startswith('include'):
+            imports.append(line)
+        else:
+            code.append(line)
+
+    code.append('}')
+    return '\n'.join(imports + code)
 
 def for_java(source):
     if 'public class' in source:
