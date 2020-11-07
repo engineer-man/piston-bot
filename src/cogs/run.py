@@ -53,6 +53,7 @@ class Run(commands.Cog, name='CodeExecution'):
             'lua': 'lua',
             'nasm': 'nasm',
             'nasm64': 'nasm64',
+            'nim': 'nim',
             'node': 'javascript',
             'paradoc': 'paradoc',
             'perl': 'perl',
