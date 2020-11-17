@@ -11,7 +11,9 @@ import re
 from discord import Embed, errors as discord_errors
 from discord.ext import commands
 from discord.utils import escape_mentions
+from aiohttp import ContentTypeError
 from .utils.codeswap import add_boilerplate
+from .utils.errors import PistonInvalidContentType, PistonInvalidStatus, PistonNoOutput
 
 # DEBUG = True
 
@@ -116,11 +118,14 @@ class Run(commands.Cog, name='CodeExecution'):
             headers=headers,
             data=json.dumps(data)
         ) as response:
-            r = await response.json()
+            try:
+                r = await response.json()
+            except ContentTypeError:
+                raise PistonInvalidContentType()
         if not response.status == 200:
-            raise commands.CommandError(f'ERROR calling Piston API. {response.status}')
+            raise PistonInvalidStatus(f'{response.status}')
         if r['output'] is None:
-            raise commands.CommandError(f'ERROR calling Piston API. No output received')
+            raise PistonNoOutput()
 
         len_syntax = 0 if syntax is None else len(syntax)
 
@@ -158,7 +163,7 @@ class Run(commands.Cog, name='CodeExecution'):
                 + output
                 + '```'
             )
-        
+
         return f'Your code ran without output {ctx.author.mention}'
 
     @commands.command()

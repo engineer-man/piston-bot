@@ -6,11 +6,13 @@ Commands:
       - traceback       print traceback of stored error
 
 """
+# pylint: disable=E0402
 import traceback
 import typing
 from datetime import datetime, timezone
 from discord import Embed, DMChannel, errors as discord_errors
 from discord.ext import commands
+from .utils.errors import PistonError
 
 
 class ErrorHandler(commands.Cog, name='ErrorHandler'):
@@ -69,12 +71,21 @@ class ErrorHandler(commands.Cog, name='ErrorHandler'):
             return
 
         if isinstance(error, commands.UnexpectedQuoteError):
-            await ctx.send('`Unexpected quote encountered`')
+            await ctx.send('Unexpected quote encountered')
             return
 
         if isinstance(error, commands.InvalidEndOfQuotedStringError):
-            await ctx.send('`Invalid character after quote`')
+            await ctx.send('Invalid character after quote')
             return
+
+        if isinstance(error, commands.CommandInvokeError):
+            if isinstance(error.original, PistonError):
+                error_message = str(error.original)
+                if error_message:
+                    error_message = f'`{error_message}` '
+                await ctx.send(f'API Error {error_message}- Please try again later')
+                await self.client.log_error(error, ctx)
+                return
 
         # In case of an unhandled error -> Save the error so it can be accessed later
         await ctx.send(self.client.error_string)
