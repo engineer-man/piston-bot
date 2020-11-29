@@ -8,7 +8,8 @@ Commands:
 # pylint: disable=E0402
 import json
 import re
-from discord import Embed, errors as discord_errors
+from dataclasses import dataclass
+from discord import Embed, Message, errors as discord_errors
 from discord.ext import commands
 from discord.utils import escape_mentions
 from aiohttp import ContentTypeError
@@ -16,6 +17,12 @@ from .utils.codeswap import add_boilerplate
 from .utils.errors import PistonInvalidContentType, PistonInvalidStatus, PistonNoOutput
 
 # DEBUG = True
+
+
+@dataclass
+class RunIO:
+    input: Message
+    output: Message
 
 
 class Run(commands.Cog, name='CodeExecution'):
@@ -78,8 +85,7 @@ class Run(commands.Cog, name='CodeExecution'):
             'ts': 'typescript',
             'typescript': 'typescript',
         }
-        self.run_command_store = dict()
-        self.run_output_store = dict()
+        self.run_IO_store = dict()  # Store the most recent /run message for each user.id
         self.run_regex = re.compile(
             r'(?s)/(?:edit_last_)?run(?: +(?P<language>\S*)\s*|\s*)(?:\n(?P<args>(?:[^\n\r\f\v]*\n)*?)\s*|\s*)```(?:(?P<syntax>\S+)\n\s*|\s*)(?P<source>.*)```'
         )
@@ -166,6 +172,24 @@ class Run(commands.Cog, name='CodeExecution'):
 
         return f'Your code ran without output {ctx.author.mention}'
 
+    async def delete_last_output(self, user_id):
+        try:
+            msg_to_delete = self.run_IO_store[user_id].output
+            del self.run_IO_store[user_id]
+            await msg_to_delete.delete()
+        except KeyError:
+            # Message does not exist in store dicts
+            return
+        except discord_errors.NotFound:
+            # Message no longer exists in discord (deleted by server admin)
+            return
+
+    @commands.command()
+    async def delete(self, ctx):
+        """Delete the most recent output message you caused
+        Type "/run" or "/help" for instructions"""
+        await self.delete_last_output(ctx.author.id)
+
     @commands.command()
     async def run(self, ctx, *, source=None):
         """Run some code
@@ -184,8 +208,7 @@ class Run(commands.Cog, name='CodeExecution'):
                 color=0x2ECC71
             )
             msg = await ctx.send(embed=embed)
-        self.run_command_store[ctx.author.id] = ctx.message
-        self.run_output_store[ctx.author.id] = msg
+        self.run_IO_store[ctx.author.id] = RunIO(input=ctx.message, output=msg)
 
     @commands.command(hidden=True)
     async def edit_last_run(self, ctx, *, source=None):
@@ -193,7 +216,7 @@ class Run(commands.Cog, name='CodeExecution'):
         if not source:
             return
         try:
-            msg_to_edit = self.run_output_store[ctx.author.id]
+            msg_to_edit = self.run_IO_store[ctx.author.id].output
             run_output = await self.get_run_output(ctx)
             await msg_to_edit.edit(content=run_output, embed=None)
         except KeyError:
@@ -202,10 +225,10 @@ class Run(commands.Cog, name='CodeExecution'):
             return
         except discord_errors.NotFound:
             # Message no longer exists in discord
-            del self.run_output_store[ctx.author.id]
+            del self.run_IO_store[ctx.author.id]
             return
         except commands.BadArgument as error:
-            # Edited message probably has bad formatting
+            # Edited message probably has bad formatting -> replace previous message with error
             embed = Embed(
                 title='Error',
                 description=str(error),
@@ -214,16 +237,17 @@ class Run(commands.Cog, name='CodeExecution'):
             try:
                 await msg_to_edit.edit(content=None, embed=embed)
             except discord_errors.NotFound:
-                del self.run_output_store[ctx.author.id]
+                # Message no longer exists in discord
+                del self.run_IO_store[ctx.author.id]
             return
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
         if after.author.bot:
             return
-        if before.author.id not in self.run_command_store:
+        if before.author.id not in self.run_IO_store:
             return
-        if before.id != self.run_command_store[before.author.id].id:
+        if before.id != self.run_IO_store[before.author.id].input.id:
             return
         prefixes = await self.client.get_prefix(after)
         if isinstance(prefixes, str):

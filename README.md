@@ -41,6 +41,10 @@ You can edit your last **/run** message if you make a mistake and the bot will e
 
 # What's new
 
+## 2020-11-29
+Added `/delete` command.  
+This command will make the bot delete it's last output (that was caused by the caller)
+
 ## 2020-08-04
 Made writing rust code "snippets" easier (Thanks https://github.com/UsairimIsani)
 ```rust
