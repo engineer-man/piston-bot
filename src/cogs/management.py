@@ -159,14 +159,15 @@ class Management(commands.Cog, name='Management'):
         name='servers',
         hidden=True,
     )
-    async def show_servers(self, ctx):
+    async def show_servers(self, ctx, include_txt: bool = False):
         to_send = '\n'.join(str(guild) for guild in self.client.guilds)
+        file=File(
+            fp=BytesIO(to_send.encode()),
+            filename=f'servers_{datetime.now(tz=timezone.utc).isoformat()}.txt'
+        ) if include_txt else None
         await ctx.send(
             f'**I am active in {len(self.client.guilds)} Servers**',
-            file=File(
-                fp=BytesIO(to_send.encode()),
-                filename=f'servers_{datetime.now(tz=timezone.utc).isoformat()}.txt'
-            )
+            file=file
         )
 
     # ----------------------------------------------
