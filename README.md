@@ -38,6 +38,7 @@ You can use the bot like this
 ````
 
 You can edit your last **/run** message if you make a mistake and the bot will edit it's initial response.
+you can delete the last output message (that was caused by you) with `/delete` or `/del`
 
 # What's new
 

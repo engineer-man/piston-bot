@@ -184,7 +184,7 @@ class Run(commands.Cog, name='CodeExecution'):
             # Message no longer exists in discord (deleted by server admin)
             return
 
-    @commands.command()
+    @commands.command(aliases=['del'])
     async def delete(self, ctx):
         """Delete the most recent output message you caused
         Type "/run" or "/help" for instructions"""
