@@ -261,6 +261,16 @@ class Run(commands.Cog, name='CodeExecution'):
                 await self.client.process_commands(after)
                 break
 
+    @commands.Cog.listener()
+    async def on_message_delete(self, message):
+        if message.author.bot:
+            return
+        if message.author.id not in self.run_IO_store:
+            return
+        if message.id != self.run_IO_store[message.author.id].input.id:
+            return
+        await self.delete_last_output(message.author.id)
+
     async def send_howto(self, ctx):
         languages = sorted(set(self.languages.values()))
 
