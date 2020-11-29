@@ -252,6 +252,9 @@ class Run(commands.Cog, name='CodeExecution'):
         prefixes = await self.client.get_prefix(after)
         if isinstance(prefixes, str):
             prefixes = [prefixes, ]
+        if any(after.content in (f'{prefix}delete', f'{prefix}del') for prefix in prefixes):
+            await self.delete_last_output(after.author.id)
+            return
         for prefix in prefixes:
             if after.content.lower().startswith(f'{prefix}run'):
                 after.content = after.content.replace(f'{prefix}run', f'{prefix}edit_last_run')
