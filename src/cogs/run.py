@@ -88,6 +88,32 @@ class Run(commands.Cog, name='CodeExecution'):
             r'(?s)/(?:edit_last_)?run(?: +(?P<language>\S*)\s*|\s*)(?:\n(?P<args>(?:[^\n\r\f\v]*\n)*?)\s*|\s*)```(?:(?P<syntax>\S+)\n\s*|\s*)(?P<source>.*)```'
         )
 
+    async def send_to_log(self, ctx, language, source):
+        # Logging
+        logging_data = {
+            'server': ctx.guild.name if ctx.guild else 'DMChannel',
+            'server_id': str(ctx.guild.id) if ctx.guild else '0',
+            'user': f'{ctx.author.name}#{ctx.author.discriminator}',
+            'user_id': str(ctx.author.id),
+            'language': language,
+            'source': source
+        }
+        headers = {'Authorization': self.client.config["emkc_key"]}
+
+        async with self.client.session.post(
+            'https://emkc.org/api/internal/piston/log',
+            headers=headers,
+            data=json.dumps(logging_data)
+        ) as response:
+            if response.status != 200:
+                await self.client.log_error(
+                    commands.CommandError(f'Error sending log. Status: {response.status}'),
+                    ctx
+                )
+                return False
+
+        return True
+
     async def get_run_output(self, ctx):
         if ctx.message.content.count('```') != 2:
             raise commands.BadArgument('Invalid command format (missing codeblock?)')
@@ -132,48 +158,33 @@ class Run(commands.Cog, name='CodeExecution'):
         if r['output'] is None:
             raise PistonNoOutput()
 
-        len_syntax = 0 if syntax is None else len(syntax)
+        # Logging
+        await self.send_to_log(ctx, language, source)
 
-        output = escape_mentions('\n'.join(r['output'].split('\n')[:30]))
+        # Return early if no output was received
+        if len(r['output']) == 0:
+            return f'Your code ran without output {ctx.author.mention}'
 
-        # Disable code block escaping
+        # Limit output to 30 lines maximum
+        output = '\n'.join(r['output'].split('\n')[:30])
+
+        # Prevent mentions in the code output
+        output = escape_mentions(output)
+
+        # Prevent code block escaping
         output = output.replace("```", "'''")
 
+        # Truncate output to be below 2000 char discord limit
+        len_syntax = 0 if syntax is None else len(syntax)
         if len(output) > 1945-len_syntax:
             output = output[:1945-len_syntax] + '[...]'
 
-        # Logging
-        logging_data = {
-            'server': ctx.guild.name if ctx.guild else 'DMChannel',
-            'server_id': str(ctx.guild.id) if ctx.guild else '0',
-            'user': f'{ctx.author.name}#{ctx.author.discriminator}',
-            'user_id': str(ctx.author.id),
-            'language': language,
-            'source': source
-        }
-        # if DEBUG:
-        # await ctx.send('```DEBUG:\nSending Log\n' + str(logging_data) + '```')
-
-        async with self.client.session.post(
-            'https://emkc.org/api/internal/piston/log',
-            headers=headers,
-            data=json.dumps(logging_data)
-        ) as response:
-            if response.status != 200:
-                await self.client.log_error(
-                    commands.CommandError(f'Error sending log. Status: {response.status}'),
-                    ctx
-                )
-
-        if len(output) > 0:
-            return (
-                f'Here is your output {ctx.author.mention}\n'
-                + f'```{syntax or ""}\n'
-                + output
-                + '```'
-            )
-
-        return f'Your code ran without output {ctx.author.mention}'
+        return (
+            f'Here is your output {ctx.author.mention}\n'
+            + f'```{syntax or ""}\n'
+            + output
+            + '```'
+        )
 
     async def delete_last_output(self, user_id):
         try:
