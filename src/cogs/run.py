@@ -89,7 +89,6 @@ class Run(commands.Cog, name='CodeExecution'):
         )
 
     async def send_to_log(self, ctx, language, source):
-        # Logging
         logging_data = {
             'server': ctx.guild.name if ctx.guild else 'DMChannel',
             'server_id': str(ctx.guild.id) if ctx.guild else '0',
@@ -137,13 +136,14 @@ class Run(commands.Cog, name='CodeExecution'):
         if not source:
             raise commands.BadArgument(f'No source code found')
 
+        # Add boilerplate code to supported languages
         source = add_boilerplate(language, source)
 
+        # Call piston API
         language = self.languages[language]
         data = {'language': language, 'source': source, 'args': args}
         headers = {'Authorization': self.client.config["emkc_key"]}
 
-        # Call piston API
         async with self.client.session.post(
             'https://emkc.org/api/v1/piston/execute',
             headers=headers,
@@ -171,19 +171,24 @@ class Run(commands.Cog, name='CodeExecution'):
         # Prevent mentions in the code output
         output = escape_mentions(output)
 
-        # Prevent code block escaping
-        output = output.replace("```", "'''")
+        # Prevent code block escaping by adding zero width spaces to backticks
+        output = output.replace("`", "`\u200b")
 
-        # Truncate output to be below 2000 char discord limit
+        # Truncate output to be below 2000 char discord limit.
+        # Theoretically it could display 2 more characters () but 2 extra chars
+        # are reserved because mentions are not always the same length,
+        # (The length depends on the users id: <@00000000000000000>
+        # and there are currently ids with length 17 and 18)
+        truncate_indicator = '[...]'
         len_syntax = 0 if syntax is None else len(syntax)
-        if len(output) > 1945-len_syntax:
-            output = output[:1945-len_syntax] + '[...]'
+        if len(output) > 1945-len_syntax+len(truncate_indicator):
+            output = output[:1945-len_syntax] + truncate_indicator
 
         return (
             f'Here is your output {ctx.author.mention}\n'
             + f'```{syntax or ""}\n'
             + output
-            + '\n```'
+            + '```'
         )
 
     async def delete_last_output(self, user_id):
