@@ -136,6 +136,10 @@ class Run(commands.Cog, name='CodeExecution'):
         len_syntax = 0 if syntax is None else len(syntax)
 
         output = escape_mentions('\n'.join(r['output'].split('\n')[:30]))
+
+        # Disable code block escaping
+        output = output.replace("```", "'''")
+
         if len(output) > 1945-len_syntax:
             output = output[:1945-len_syntax] + '[...]'
 
