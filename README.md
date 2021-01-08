@@ -10,7 +10,7 @@ To see a list of supported languages click [here](https://github.com/engineer-ma
 
 If you have questions check by our [Discord Server](https://discord.com/invite/engineerman)
 
-I use [engineer-man/piston](https://github.com/engineer-man/piston) to run code.
+[engineer-man/piston](https://github.com/engineer-man/piston) is the api that actually runs the code.
 
 # How to use
 ## Basic Syntax
@@ -42,8 +42,8 @@ I use [engineer-man/piston](https://github.com/engineer-man/piston) to run code.
 
 # Contributing
 If you want to contribute you can just submit a pull request.
-#### Code styling / IDE Settings
-Please style your code according to these guidelines when writing python code for Felix:
+### Code styling / IDE Settings
+Please style your code according to these guidelines:
 * maximum line length is 99 columns 
 * use 4 spaces for indentation
 * files end with a newline 
@@ -70,9 +70,9 @@ Example config for VSCode:
 # What's new
 
 ## 2020-11-29
-Added `delete` fonctionality.  
-The `/delete` command will make the bot delete it's last output (that was caused by the caller)
-If you delete your most recent `/run` message the corresponding output will also be deleted.
+Added `delete` functionality.  
+* The `/delete` or `/del` command will make the bot delete it's last output (that was caused by the caller)  
+* If you delete your most recent `/run` message the corresponding output will also be deleted.
 
 ## 2020-08-04
 Made writing rust code "snippets" easier (Thanks https://github.com/UsairimIsani)
