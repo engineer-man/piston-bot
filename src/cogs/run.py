@@ -16,8 +16,6 @@ from aiohttp import ContentTypeError
 from .utils.codeswap import add_boilerplate
 from .utils.errors import PistonInvalidContentType, PistonInvalidStatus, PistonNoOutput
 
-# DEBUG = True
-
 
 @dataclass
 class RunIO:
@@ -93,9 +91,12 @@ class Run(commands.Cog, name='CodeExecution'):
     async def get_run_output(self, ctx):
         if ctx.message.content.count('```') != 2:
             raise commands.BadArgument('Invalid command format (missing codeblock?)')
+
         match = self.run_regex.search(ctx.message.content)
+
         if not match:
             raise commands.BadArgument('Invalid command format')
+
         language, args, syntax, source = match.groups()
 
         if args:
@@ -117,8 +118,6 @@ class Run(commands.Cog, name='CodeExecution'):
         headers = {'Authorization': self.client.config["emkc_key"]}
 
         # Call piston API
-        # if DEBUG:
-        #     await ctx.send('```DEBUG:\nSending Source to Piston\n' + str(data) + '```')
         async with self.client.session.post(
             'https://emkc.org/api/v1/piston/execute',
             headers=headers,
