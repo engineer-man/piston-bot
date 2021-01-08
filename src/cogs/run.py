@@ -183,7 +183,7 @@ class Run(commands.Cog, name='CodeExecution'):
             f'Here is your output {ctx.author.mention}\n'
             + f'```{syntax or ""}\n'
             + output
-            + '```'
+            + '\n```'
         )
 
     async def delete_last_output(self, user_id):
