@@ -20,7 +20,9 @@ class PistonBot(Bot):
         self.last_errors = []
         self.default_activity = Activity(name='emkc.org/run | /run', type=0)
         self.error_activity = Activity(name='!emkc.org/run | /run', type=0)
+        self.maintenance_activity = Activity(name='undergoing maintenance', type=0)
         self.error_string = 'Sorry, something went wrong. We will look into it.'
+        self.maintenance_mode = False
 
     async def start(self, *args, **kwargs):
         self.session = ClientSession()

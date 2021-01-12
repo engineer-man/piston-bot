@@ -161,7 +161,7 @@ class Management(commands.Cog, name='Management'):
     )
     async def show_servers(self, ctx, include_txt: bool = False):
         to_send = '\n'.join(str(guild) for guild in self.client.guilds)
-        file=File(
+        file = File(
             fp=BytesIO(to_send.encode()),
             filename=f'servers_{datetime.now(tz=timezone.utc).isoformat()}.txt'
         ) if include_txt else None
@@ -232,6 +232,22 @@ class Management(commands.Cog, name='Management'):
     async def shutdown(self, ctx):
         """Stop/Restart the bot"""
         await self.client.close()
+
+    # ----------------------------------------------
+    # Command to toggle maintenance mode
+    # ----------------------------------------------
+    @commands.command(
+        name='maintenance',
+        hidden=True
+    )
+    async def maintenance(self, ctx):
+        """Toggle maintenance mode"""
+        if self.client.maintenance_mode:
+            self.client.maintenance_mode = False
+            await self.client.change_presence(activity=self.client.default_activity)
+        else:
+            self.client.maintenance_mode = True
+            await self.client.change_presence(activity=self.client.maintenance_activity)
 
 
 def setup(client):

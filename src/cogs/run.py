@@ -213,6 +213,9 @@ class Run(commands.Cog, name='CodeExecution'):
     async def run(self, ctx, *, source=None):
         """Run some code
         Type "/run" or "/help" for instructions"""
+        if self.client.maintenance_mode:
+            await ctx.send('Sorry - I am currently undergoing maintenance.')
+            return
         await ctx.trigger_typing()
         if not source:
             await self.send_howto(ctx)
@@ -232,6 +235,8 @@ class Run(commands.Cog, name='CodeExecution'):
     @commands.command(hidden=True)
     async def edit_last_run(self, ctx, *, source=None):
         """Run some edited code and edit previous message"""
+        if self.client.maintenance_mode:
+            return
         if not source:
             return
         try:
@@ -262,6 +267,8 @@ class Run(commands.Cog, name='CodeExecution'):
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
+        if self.client.maintenance_mode:
+            return
         if after.author.bot:
             return
         if before.author.id not in self.run_IO_store:
@@ -282,6 +289,8 @@ class Run(commands.Cog, name='CodeExecution'):
 
     @commands.Cog.listener()
     async def on_message_delete(self, message):
+        if self.client.maintenance_mode:
+            return
         if message.author.bot:
             return
         if message.author.id not in self.run_IO_store:
