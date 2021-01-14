@@ -174,18 +174,20 @@ class Run(commands.Cog, name='CodeExecution'):
         output = output.replace("`", "`\u200b")
 
         # Truncate output to be below 2000 char discord limit.
-        # Theoretically it could display 2 more characters () but 2 extra chars
-        # are reserved because mentions are not always the same length,
-        # (The length depends on the users id: <@00000000000000000>
-        # and there are currently ids with length 17 and 18)
+        if len(r['stdout']) == 0 and len(r['stderr']) > 0:
+            introduction = f'{ctx.author.mention} I only received error output\n'
+        else:
+            introduction = f'Here is your output {ctx.author.mention}\n'
         truncate_indicator = '[...]'
-        len_syntax = 0 if syntax is None else len(syntax)
-        if len(output) > 1945-len_syntax+len(truncate_indicator):
-            output = output[:1945-len_syntax] + truncate_indicator
+        syntax = syntax or ''  # Syntax could be None
+        len_codeblock = 3 + len(syntax) + 1 + 3  #  3 Backticks + syntax + newline + 3 Backticks
+        available_chars = 2000-len(introduction)-len_codeblock
+        if len(output) > available_chars:
+            output = output[:available_chars-len(truncate_indicator)] + truncate_indicator
 
         return (
-            f'Here is your output {ctx.author.mention}\n'
-            + f'```{syntax or ""}\n'
+            introduction
+            + f'```{syntax}\n'
             + output
             + '```'
         )
