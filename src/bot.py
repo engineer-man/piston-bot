@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from os import path, listdir
 from discord.ext.commands import Bot, Context
 from discord import Activity, AllowedMentions
-from aiohttp import ClientSession
+from aiohttp import ClientSession, ClientTimeout
 
 
 class PistonBot(Bot):
@@ -25,7 +25,7 @@ class PistonBot(Bot):
         self.maintenance_mode = False
 
     async def start(self, *args, **kwargs):
-        self.session = ClientSession()
+        self.session = ClientSession(timeout=ClientTimeout(total=15))
         await super().start(self.config["bot_key"], *args, **kwargs)
 
     async def close(self):
