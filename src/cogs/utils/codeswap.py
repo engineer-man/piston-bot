@@ -36,7 +36,6 @@ def for_c_cpp(source):
 
     lines = source.replace(';', ';\n').split('\n')
     for line in lines:
-        print(line)
         if line.lstrip().startswith('include'):
             imports.append(line)
         else:

@@ -230,7 +230,7 @@ class Run(commands.Cog, name='CodeExecution'):
                 description=str(error),
                 color=0x2ECC71
             )
-            msg = await ctx.send(embed=embed)
+            msg = await ctx.send(ctx.author.mention, embed=embed)
         self.run_IO_store[ctx.author.id] = RunIO(input=ctx.message, output=msg)
 
     @commands.command(hidden=True)
@@ -260,7 +260,7 @@ class Run(commands.Cog, name='CodeExecution'):
                 color=0x2ECC71
             )
             try:
-                await msg_to_edit.edit(content=None, embed=embed)
+                await msg_to_edit.edit(content=ctx.author.mention, embed=embed)
             except discord_errors.NotFound:
                 # Message no longer exists in discord
                 del self.run_IO_store[ctx.author.id]

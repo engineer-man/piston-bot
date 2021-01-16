@@ -10,6 +10,7 @@ Commands:
 import traceback
 import typing
 from datetime import datetime, timezone
+from asyncio import TimeoutError as AsyncTimeoutError
 from discord import Embed, DMChannel, errors as discord_errors
 from discord.ext import commands
 from .utils.errors import PistonError
@@ -37,6 +38,8 @@ class ErrorHandler(commands.Cog, name='ErrorHandler'):
                 await ctx.send("I don't have permission to post embeds in this channel.")
                 return
 
+        usr = ctx.author.mention
+
         if isinstance(error, commands.CommandNotFound):
             return
 
@@ -52,12 +55,12 @@ class ErrorHandler(commands.Cog, name='ErrorHandler'):
             else:
                 missing_type = ''
             await ctx.send(
-                f'Missing parameter: `{missing}{missing_type}`'
+                f'{usr} Missing parameter: `{missing}{missing_type}`'
             )
             return
 
         if isinstance(error, commands.CheckFailure):
-            await ctx.send('Sorry, you are not allowed to run this command.')
+            await ctx.send(f'Sorry {usr}, you are not allowed to run this command.')
             return
 
         if isinstance(error, commands.BadArgument):
@@ -67,15 +70,15 @@ class ErrorHandler(commands.Cog, name='ErrorHandler'):
                 description=str(error),
                 color=0x2ECC71
             )
-            await ctx.send(embed=embed)
+            await ctx.send(usr, embed=embed)
             return
 
         if isinstance(error, commands.UnexpectedQuoteError):
-            await ctx.send('Unexpected quote encountered')
+            await ctx.send(f'{usr} Unexpected quote encountered')
             return
 
         if isinstance(error, commands.InvalidEndOfQuotedStringError):
-            await ctx.send('Invalid character after quote')
+            await ctx.send(f'{usr} Invalid character after quote')
             return
 
         if isinstance(error, commands.CommandInvokeError):
@@ -83,12 +86,17 @@ class ErrorHandler(commands.Cog, name='ErrorHandler'):
                 error_message = str(error.original)
                 if error_message:
                     error_message = f'`{error_message}` '
-                await ctx.send(f'API Error {error_message}- Please try again later')
+                await ctx.send(f'{usr} API Error {error_message}- Please try again later')
+                await self.client.log_error(error, ctx)
+                return
+
+            if isinstance(error.original, AsyncTimeoutError):
+                await ctx.send(f'{usr} API Timeout - Please try again later')
                 await self.client.log_error(error, ctx)
                 return
 
         # In case of an unhandled error -> Save the error so it can be accessed later
-        await ctx.send(self.client.error_string)
+        await ctx.send(f'{usr} {self.client.error_string}')
         await self.client.log_error(error, ctx)
 
         print(f'Ignoring exception in command {ctx.command}:', flush=True)
