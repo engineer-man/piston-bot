@@ -10,11 +10,12 @@ import json
 import re
 from dataclasses import dataclass
 from discord import Embed, Message, errors as discord_errors
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord.utils import escape_mentions
 from aiohttp import ContentTypeError
 from .utils.codeswap import add_boilerplate
 from .utils.errors import PistonInvalidContentType, PistonInvalidStatus, PistonNoOutput
+#pylint: disable=E1101
 
 
 @dataclass
@@ -26,66 +27,25 @@ class RunIO:
 class Run(commands.Cog, name='CodeExecution'):
     def __init__(self, client):
         self.client = client
-        self.languages = {
-            'asm': 'nasm',
-            'asm64': 'nasm64',
-            'awk': 'awk',
-            'bash': 'bash',
-            'bf': 'brainfuck',
-            'brainfuck': 'brainfuck',
-            'c': 'c',
-            'c#': 'csharp',
-            'c++': 'cpp',
-            'cpp': 'cpp',
-            'cs': 'csharp',
-            'csharp': 'csharp',
-            'deno': 'deno',
-            'denojs': 'deno',
-            'denots': 'deno',
-            'duby': 'ruby',
-            'el': 'emacs',
-            'elisp': 'emacs',
-            'emacs': 'emacs',
-            'elixir': 'elixir',
-            'haskell': 'haskell',
-            'hs': 'haskell',
-            'go': 'go',
-            'java': 'java',
-            'javascript': 'javascript',
-            'jelly': 'jelly',
-            'jl': 'julia',
-            'julia': 'julia',
-            'js': 'javascript',
-            'kotlin': 'kotlin',
-            'lua': 'lua',
-            'nasm': 'nasm',
-            'nasm64': 'nasm64',
-            'node': 'javascript',
-            'paradoc': 'paradoc',
-            'perl': 'perl',
-            'php': 'php',
-            'php3': 'php',
-            'php4': 'php',
-            'php5': 'php',
-            'py': 'python3',
-            'py3': 'python3',
-            'python': 'python3',
-            'python2': 'python2',
-            'python3': 'python3',
-            'r': 'r',
-            'rb': 'ruby',
-            'ruby': 'ruby',
-            'rs': 'rust',
-            'rust': 'rust',
-            'sage': 'python3',
-            'swift': 'swift',
-            'ts': 'typescript',
-            'typescript': 'typescript',
-        }
         self.run_IO_store = dict()  # Store the most recent /run message for each user.id
         self.run_regex = re.compile(
             r'(?s)/(?:edit_last_)?run(?: +(?P<language>\S*)\s*|\s*)(?:\n(?P<args>(?:[^\n\r\f\v]*\n)*?)\s*|\s*)```(?:(?P<syntax>\S+)\n\s*|\s*)(?P<source>.*)```'
         )
+        self.languages = dict()  # Store the supported languages and aliases
+        self.get_available_languages.start()
+
+    @tasks.loop(count=1)
+    async def get_available_languages(self):
+        async with self.client.session.get(
+            'https://emkc.org/api/v1/piston/versions'
+        ) as response:
+            versions = await response.json()
+        for version in versions:
+            language = version['name']
+            for alias in version['aliases']:
+                self.languages[alias] = language
+        import pprint
+        pprint.pprint(self.languages)
 
     async def send_to_log(self, ctx, language, source):
         logging_data = {
@@ -180,7 +140,7 @@ class Run(commands.Cog, name='CodeExecution'):
             introduction = f'Here is your output {ctx.author.mention}\n'
         truncate_indicator = '[...]'
         syntax = syntax or ''  # Syntax could be None
-        len_codeblock = 3 + len(syntax) + 1 + 3  #  3 Backticks + syntax + newline + 3 Backticks
+        len_codeblock = 3 + len(syntax) + 1 + 3  # 3 Backticks + syntax + newline + 3 Backticks
         available_chars = 2000-len(introduction)-len_codeblock
         if len(output) > available_chars:
             output = output[:available_chars-len(truncate_indicator)] + truncate_indicator
