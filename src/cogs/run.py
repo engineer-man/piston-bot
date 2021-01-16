@@ -29,7 +29,10 @@ class Run(commands.Cog, name='CodeExecution'):
         self.client = client
         self.run_IO_store = dict()  # Store the most recent /run message for each user.id
         self.run_regex = re.compile(
-            r'(?s)/(?:edit_last_)?run(?: +(?P<language>\S*)\s*|\s*)(?:\n(?P<args>(?:[^\n\r\f\v]*\n)*?)\s*|\s*)```(?:(?P<syntax>\S+)\n\s*|\s*)(?P<source>.*)```'
+            r'(?s)/(?:edit_last_)?run(?: +(?P<language>\S*)\s*|\s*)(?:\n'
+            r'(?P<args>(?:[^\n\r\f\v]*\n)*?)\s*|\s*)'
+            r'```(?:(?P<syntax>\S+)\n\s*|\s*)(?P<source>.*)```'
+            r'(?:\n?(?P<stdin>(?:[^\n\r\f\v]\n?)+)+|)'
         )
         self.languages = dict()  # Store the supported languages and aliases
         self.get_available_languages.start()
@@ -81,7 +84,7 @@ class Run(commands.Cog, name='CodeExecution'):
         if not match:
             raise commands.BadArgument('Invalid command format')
 
-        language, args, syntax, source = match.groups()
+        language, args, syntax, source, stdin = match.groups()
 
         if args:
             args = [arg for arg in args.strip().split('\n') if arg]
@@ -100,7 +103,7 @@ class Run(commands.Cog, name='CodeExecution'):
 
         # Call piston API
         language = self.languages[language]
-        data = {'language': language, 'source': source, 'args': args}
+        data = {'language': language, 'source': source, 'args': args, 'stdin': stdin}
         headers = {'Authorization': self.client.config["emkc_key"]}
 
         async with self.client.session.post(
