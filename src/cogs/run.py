@@ -103,7 +103,7 @@ class Run(commands.Cog, name='CodeExecution'):
 
         # Call piston API
         language = self.languages[language]
-        data = {'language': language, 'source': source, 'args': args, 'stdin': stdin}
+        data = {'language': language, 'source': source, 'args': args, 'stdin': stdin or ""}
         headers = {'Authorization': self.client.config["emkc_key"]}
 
         async with self.client.session.post(
@@ -116,6 +116,7 @@ class Run(commands.Cog, name='CodeExecution'):
             except ContentTypeError:
                 raise PistonInvalidContentType()
         if not response.status == 200:
+            print(response)
             raise PistonInvalidStatus(f'{response.status}')
         if r['output'] is None:
             raise PistonNoOutput()
