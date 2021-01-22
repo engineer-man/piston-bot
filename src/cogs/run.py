@@ -47,8 +47,6 @@ class Run(commands.Cog, name='CodeExecution'):
             language = version['name']
             for alias in version['aliases']:
                 self.languages[alias] = language
-        import pprint
-        pprint.pprint(self.languages)
 
     async def send_to_log(self, ctx, language, source):
         logging_data = {
@@ -116,8 +114,7 @@ class Run(commands.Cog, name='CodeExecution'):
             except ContentTypeError:
                 raise PistonInvalidContentType()
         if not response.status == 200:
-            print(response)
-            raise PistonInvalidStatus(f'{response.status}')
+            raise PistonInvalidStatus(f'{response.status} - ')
         if r['output'] is None:
             raise PistonNoOutput()
 
