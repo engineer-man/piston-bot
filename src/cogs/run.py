@@ -112,11 +112,11 @@ class Run(commands.Cog, name='CodeExecution'):
             try:
                 r = await response.json()
             except ContentTypeError:
-                raise PistonInvalidContentType()
+                raise PistonInvalidContentType('invalid content type')
         if not response.status == 200:
-            raise PistonInvalidStatus(f'{response.status} - ')
+            raise PistonInvalidStatus(f'{response.status}{r.get("message", "")}')
         if r['output'] is None:
-            raise PistonNoOutput()
+            raise PistonNoOutput('no output')
 
         # Logging
         await self.send_to_log(ctx, language, source)
