@@ -7,6 +7,8 @@ def add_boilerplate(language, source):
         return for_c_cpp(source)
     if language == 'go':
         return for_go(source)
+    if language == 'csharp':
+        return for_csharp(source)
     return source
 
 def for_go(source):
@@ -44,6 +46,21 @@ def for_c_cpp(source):
     code.append('}')
     return '\n'.join(imports + code)
 
+def for_csharp(source):
+    if 'static void Main' in source:
+        return source
+
+    imports=[]
+    code = ['class Program{static void Main(string[] args){']
+
+    lines = source.replace(';', ';\n').split('\n')
+    for line in lines:
+        if line.lstrip().startswith('using'):
+            imports.append(line)
+        else:
+            code.append(line)
+    code.append('}}')
+    return '\n'.join(imports + code)
 
 def for_java(source):
     if 'public class' in source:

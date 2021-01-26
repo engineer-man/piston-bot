@@ -96,11 +96,13 @@ class Run(commands.Cog, name='CodeExecution'):
         if not source:
             raise commands.BadArgument(f'No source code found')
 
+        # Resolve aliases for language
+        language = self.languages[language]
+
         # Add boilerplate code to supported languages
         source = add_boilerplate(language, source)
 
         # Call piston API
-        language = self.languages[language]
         data = {'language': language, 'source': source, 'args': args, 'stdin': stdin or ""}
         headers = {'Authorization': self.client.config["emkc_key"]}
 
