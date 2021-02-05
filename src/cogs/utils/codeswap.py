@@ -9,6 +9,8 @@ def add_boilerplate(language, source):
         return for_go(source)
     if language == 'csharp':
         return for_csharp(source)
+    if language == 'php':
+        return for_php(source)
     return source
 
 def for_go(source):
@@ -80,6 +82,11 @@ def for_java(source):
     code.append('}}')
     return '\n'.join(imports + code)
 
+def for_php(source):
+    if source.startswith('<?'):
+        return source
+        
+    return '<?' + source
 
 def for_rust(source):
     if 'fn main' in source:
