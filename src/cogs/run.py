@@ -270,7 +270,7 @@ class Run(commands.Cog, name='CodeExecution'):
             + ', '.join(languages) +
             '\n\n**You can run code like this:**\n'
             '/run <language>\ncommand line parameters (optional) - 1 per line\n'
-            '\\`\\`\\`\nyour code\n\\`\\`\\`\n'
+            '\\`\\`\\`\nyour code\n\\`\\`\\`\nstandard input (optional)\n'
             '\n**Provided by the Engineer Man Discord Server - visit:**\n'
             '• https://emkc.org/run to get it in your own server\n'
             '• https://discord.gg/engineerman for more info\n'
