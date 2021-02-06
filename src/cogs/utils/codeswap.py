@@ -1,6 +1,8 @@
 def add_boilerplate(language, source):
     if language == 'java':
         return for_java(source)
+    if language == 'scala':
+        return for_scala(source)
     if language == 'rust':
         return for_rust(source)
     if language == 'c' or language == 'cpp':
@@ -80,6 +82,14 @@ def for_java(source):
     code.append('}}')
     return '\n'.join(imports + code)
 
+def for_scala(source):
+    if any(s in source for s in ('extends App', 'def main', '@main def', '@main() def')):
+        return source
+
+    # Scala will complain about indentation so just indent source
+    indented_source = '  ' + source.replace('\n', '\n  ').rstrip() + '\n'
+
+    return f'@main def run(): Unit = {{\n{indented_source}}}\n'
 
 def for_rust(source):
     if 'fn main' in source:
