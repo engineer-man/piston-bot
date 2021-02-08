@@ -6,12 +6,12 @@ import sys
 import traceback
 from datetime import datetime, timezone
 from os import path, listdir
-from discord.ext.commands import Bot, Context
+from discord.ext.commands import AutoShardedBot, Context
 from discord import Activity, AllowedMentions
 from aiohttp import ClientSession, ClientTimeout
 
 
-class PistonBot(Bot):
+class PistonBot(AutoShardedBot):
     def __init__(self, *args, **options):
         super().__init__(*args, **options)
         self.session = None
