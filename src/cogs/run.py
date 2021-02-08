@@ -213,7 +213,8 @@ class Run(commands.Cog, name='CodeExecution'):
             return
         except discord_errors.NotFound:
             # Message no longer exists in discord
-            del self.run_IO_store[ctx.author.id]
+            if ctx.author.id in self.run_IO_store:
+                del self.run_IO_store[ctx.author.id]
             return
         except commands.BadArgument as error:
             # Edited message probably has bad formatting -> replace previous message with error
