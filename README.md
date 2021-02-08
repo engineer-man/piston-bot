@@ -36,6 +36,16 @@ If you have questions check by our [Discord Server](https://discord.com/invite/e
 * You can provide command line arguments by specifying them before the codeblock
 * Each line corresponds to one argument
 
+## Provide standard input
+````
+/run [language]
+```[syntax]
+<your code>
+```
+[input]
+````
+* You can provide standard input by specifying it after the codeblock
+
 ## Editing and deleting messages
 + You can edit your last `/run` message if you make a mistake and the bot will edit it's initial response.  
 + You can delete the last output message (that was caused by you) with `/delete` or `/del` or by deleting your most recent `/run` message
@@ -118,4 +128,17 @@ parameter 2
 ```
 <your code>
 ```
+````
+
+## 2021-02-05
+Added optional standard input
+You can use standard input by specifying it after the codeblock 
+
+Example:
+````
+/run <language>
+```
+<your code>
+```
+standard input
 ````

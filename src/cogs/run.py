@@ -142,15 +142,14 @@ class Run(commands.Cog, name='CodeExecution'):
         else:
             introduction = f'Here is your output {ctx.author.mention}\n'
         truncate_indicator = '[...]'
-        syntax = syntax or ''  # Syntax could be None
-        len_codeblock = 3 + len(syntax) + 1 + 3  # 3 Backticks + syntax + newline + 3 Backticks
+        len_codeblock = 7  # 3 Backticks + newline + 3 Backticks
         available_chars = 2000-len(introduction)-len_codeblock
         if len(output) > available_chars:
             output = output[:available_chars-len(truncate_indicator)] + truncate_indicator
 
         return (
             introduction
-            + f'```{syntax}\n'
+            + '```\n'
             + output
             + '```'
         )
@@ -272,7 +271,7 @@ class Run(commands.Cog, name='CodeExecution'):
             + ', '.join(languages) +
             '\n\n**You can run code like this:**\n'
             '/run <language>\ncommand line parameters (optional) - 1 per line\n'
-            '\\`\\`\\`\nyour code\n\\`\\`\\`\n'
+            '\\`\\`\\`\nyour code\n\\`\\`\\`\nstandard input (optional)\n'
             '\n**Provided by the Engineer Man Discord Server - visit:**\n'
             '• https://emkc.org/run to get it in your own server\n'
             '• https://discord.gg/engineerman for more info\n'
