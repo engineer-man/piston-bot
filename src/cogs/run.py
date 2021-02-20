@@ -103,7 +103,9 @@ class Run(commands.Cog, name='CodeExecution'):
         source = add_boilerplate(language, source)
 
         # Call piston API
-        data = {'language': language, 'source': source, 'args': args, 'stdin': stdin or ""}
+        data = {
+            'language': language, 'source': source, 'args': args, 'stdin': stdin or "", 'log': 0
+        }
         headers = {'Authorization': self.client.config["emkc_key"]}
 
         async with self.client.session.post(
