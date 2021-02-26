@@ -65,7 +65,7 @@ def for_csharp(source):
     return '\n'.join(imports + code)
 
 def for_java(source):
-    if 'public class' in source:
+    if 'class' in source:
         return source
 
     imports = []
