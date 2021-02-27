@@ -91,7 +91,7 @@ class Run(commands.Cog, name='CodeExecution'):
             language = syntax
 
         if language not in self.languages:
-            raise commands.BadArgument(f'Unsupported language: {language}')
+            raise commands.BadArgument(f'Unsupported language: {language}\nYou can create [issue on GitHub](https://github.com/engineer-man/piston/issues/new?title={language}+executor&body=Automatically+generated+text+please+provide+more+information+about+{language})')
 
         if not source:
             raise commands.BadArgument(f'No source code found')
