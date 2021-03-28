@@ -128,9 +128,12 @@ class Run(commands.Cog, name='CodeExecution'):
         # Logging
         await self.send_to_log(ctx, language, source)
 
+        # Guild specific nick name if existing
+        nick = ctx.author.nick or ctx.author.name
+
         # Return early if no output was received
         if len(r['output']) == 0:
-            return f'Your code ran without output {ctx.author.mention}'
+            return f'Your code ran without output {nick}'
 
         # Limit output to 30 lines maximum
         output = '\n'.join(r['output'].split('\n')[:30])
@@ -143,9 +146,9 @@ class Run(commands.Cog, name='CodeExecution'):
 
         # Truncate output to be below 2000 char discord limit.
         if len(r['stdout']) == 0 and len(r['stderr']) > 0:
-            introduction = f'{ctx.author.mention} I only received error output\n'
+            introduction = f'{nick} I only received error output\n'
         else:
-            introduction = f'Here is your output {ctx.author.mention}\n'
+            introduction = f'Here is your output {nick}\n'
         truncate_indicator = '[...]'
         len_codeblock = 7  # 3 Backticks + newline + 3 Backticks
         available_chars = 2000-len(introduction)-len_codeblock
