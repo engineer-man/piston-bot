@@ -134,7 +134,11 @@ class Run(commands.Cog, name='CodeExecution'):
             )
 
         source = await file.read()
-        source = source.decode('utf-8')
+        try:
+            source = source.decode('utf-8')
+        except UnicodeDecodeError as e:
+            raise commands.BadArgument(str(e))
+
 
         return language, source, args, stdin
 
