@@ -46,6 +46,25 @@ If you have questions check by our [Discord Server](https://discord.com/invite/e
 ````
 * You can provide standard input by specifying it after the codeblock
 
+## Use a file instead of a codeblock
+
+````
+/run [language]
+[args1]
+[args2]
+
+[stdin1]
+[stdin2]
+
+<attached_file>
+```` 
+* You can attach a file with source code instead of providing a codeblock
+  * If you don't specify the language the bot will use the file extension 
+  * You can specify command line arguments and stdin in the command. 
+    * command line arguments should directly follow the `/run` line
+    * stdin is everything that follows after the first double newline
+* Please note that attachments can not be edited therefore you can not use the edit functionality if you provide a source file
+
 ## Editing and deleting messages
 + You can edit your last `/run` message if you make a mistake and the bot will edit it's initial response.  
 + You can delete the last output message (that was caused by you) with `/delete` or `/del` or by deleting your most recent `/run` message

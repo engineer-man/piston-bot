@@ -28,12 +28,6 @@ class Run(commands.Cog, name='CodeExecution'):
     def __init__(self, client):
         self.client = client
         self.run_IO_store = dict()  # Store the most recent /run message for each user.id
-        self.run_regex = re.compile(
-            r'(?s)/(?:edit_last_)?run(?: +(?P<language>\S*)\s*|\s*)(?:\n'
-            r'(?P<args>(?:[^\n\r\f\v]*\n)*?)\s*|\s*)'
-            r'```(?:(?P<syntax>\S+)\n\s*|\s*)(?P<source>.*)```'
-            r'(?:\n?(?P<stdin>(?:[^\n\r\f\v]\n?)+)+|)'
-        )
         self.languages = dict()  # Store the supported languages and aliases
         self.get_available_languages.start()
 
@@ -73,11 +67,18 @@ class Run(commands.Cog, name='CodeExecution'):
 
         return True
 
-    async def get_run_output(self, ctx):
+    async def get_api_parameters_with_codeblock(self, ctx):
         if ctx.message.content.count('```') != 2:
             raise commands.BadArgument('Invalid command format (missing codeblock?)')
 
-        match = self.run_regex.search(ctx.message.content)
+        run_regex = re.compile(
+            r'(?s)/(?:edit_last_)?run(?: +(?P<language>\S*)\s*|\s*)(?:\n'
+            r'(?P<args>(?:[^\n\r\f\v]*\n)*?)\s*|\s*)'
+            r'```(?:(?P<syntax>\S+)\n\s*|\s*)(?P<source>.*)```'
+            r'(?:\n?(?P<stdin>(?:[^\n\r\f\v]\n?)+)+|)'
+        )
+
+        match = run_regex.search(ctx.message.content)
 
         if not match:
             raise commands.BadArgument('Invalid command format')
@@ -101,6 +102,55 @@ class Run(commands.Cog, name='CodeExecution'):
 
         # Resolve aliases for language
         language = self.languages[language]
+
+        return language, source, args, stdin
+
+    async def get_api_parameters_with_file(self, ctx):
+        if len(ctx.message.attachments) != 1:
+            raise commands.BadArgument('Invalid number of attachments')
+
+        file = ctx.message.attachments[0]
+        filename_split = file.filename.split('.')
+
+        if len(filename_split) < 2:
+            raise commands.BadArgument('Please provide a source file with a file extension')
+
+        run_regex = re.compile(
+            r'(?s)/run(?: *(?P<language>\S*)|\s*)?'
+            r'(?:\n(?P<args>(?:[^\n\r\f\v]\n?)*))?'
+            r'(?:\n+(?P<stdin>(?:[^\n\r\f\v]\n*)+)|)'
+        )
+
+        match = run_regex.search(ctx.message.content)
+
+        if not match:
+            raise commands.BadArgument('Invalid command format')
+
+        language, args, stdin = match.groups()
+
+        if args:
+            args = [arg for arg in args.strip().split('\n') if arg]
+
+        if not language:
+            language = filename_split[-1]
+
+        if language not in self.languages:
+            raise commands.BadArgument(
+                f'Unsupported file extension: **{language}**\n'
+                '[Request a new language](https://github.com/engineer-man/piston/issues)'
+            )
+
+        source = await file.read()
+        source = source.decode('utf-8')
+
+        return language, source, args, stdin
+
+    async def get_run_output(self, ctx):
+        # Get parameters to call api depending on how the command was called (file <> codeblock)
+        if ctx.message.attachments:
+            language, source, args, stdin = await self.get_api_parameters_with_file(ctx)
+        else:
+            language, source, args, stdin = await self.get_api_parameters_with_codeblock(ctx)
 
         # Add boilerplate code to supported languages
         source = add_boilerplate(language, source)
@@ -185,7 +235,7 @@ class Run(commands.Cog, name='CodeExecution'):
             await ctx.send('Sorry - I am currently undergoing maintenance.')
             return
         await ctx.trigger_typing()
-        if not source:
+        if not source and not ctx.message.attachments:
             await self.send_howto(ctx)
             return
         try:
@@ -201,11 +251,11 @@ class Run(commands.Cog, name='CodeExecution'):
         self.run_IO_store[ctx.author.id] = RunIO(input=ctx.message, output=msg)
 
     @commands.command(hidden=True)
-    async def edit_last_run(self, ctx, *, source=None):
+    async def edit_last_run(self, ctx, *, content=None):
         """Run some edited code and edit previous message"""
         if self.client.maintenance_mode:
             return
-        if not source:
+        if (not content) or ctx.message.attachments:
             return
         try:
             msg_to_edit = self.run_IO_store[ctx.author.id].output
