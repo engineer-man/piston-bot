@@ -110,6 +110,11 @@ class Run(commands.Cog, name='CodeExecution'):
             raise commands.BadArgument('Invalid number of attachments')
 
         file = ctx.message.attachments[0]
+
+        MAX_BYTES = 65535
+        if file.size > MAX_BYTES:
+            raise commands.BadArgument(f'Source file is too big ({file.size}>{MAX_BYTES})')
+
         filename_split = file.filename.split('.')
 
         if len(filename_split) < 2:

@@ -58,7 +58,7 @@ If you have questions check by our [Discord Server](https://discord.com/invite/e
 
 <attached_file>
 ```` 
-* You can attach a file with source code instead of providing a codeblock
+* You can attach a file with source code instead of providing a codeblock (Maximum file size is 65535 bytes)
   * If you don't specify the language the bot will use the file extension 
   * You can specify command line arguments and stdin in the command. 
     * command line arguments should directly follow the `/run` line
