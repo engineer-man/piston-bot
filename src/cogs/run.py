@@ -106,11 +106,6 @@ class Run(commands.Cog, name='CodeExecution'):
         if file.size > MAX_BYTES:
             raise commands.BadArgument(f'Source file is too big ({file.size}>{MAX_BYTES})')
 
-        filename_split = file.filename.split('.')
-
-        if len(filename_split) < 2:
-            raise commands.BadArgument('Please provide a source file with a file extension')
-
         run_regex = re.compile(
             r'(?s)/run(?: *(?P<language>\S*)|\s*)?'
             r'(?:\n(?P<args>(?:[^\n\r\f\v]\n?)*))?'
@@ -125,6 +120,12 @@ class Run(commands.Cog, name='CodeExecution'):
         language, args, stdin = match.groups()
 
         if not language:
+
+            filename_split = file.filename.split('.')
+
+            if len(filename_split) < 2:
+                raise commands.BadArgument('Please provide a source file with a file extension')
+
             language = filename_split[-1]
 
         if language not in self.languages:
