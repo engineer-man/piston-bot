@@ -85,9 +85,6 @@ class Run(commands.Cog, name='CodeExecution'):
 
         language, args, syntax, source, stdin = match.groups()
 
-        if args:
-            args = [arg for arg in args.strip().split('\n') if arg]
-
         if not language:
             language = syntax
 
@@ -96,12 +93,6 @@ class Run(commands.Cog, name='CodeExecution'):
                 f'Unsupported language: **{language}**\n'
                 '[Request a new language](https://github.com/engineer-man/piston/issues)'
             )
-
-        if not source:
-            raise commands.BadArgument(f'No source code found')
-
-        # Resolve aliases for language
-        language = self.languages[language]
 
         return language, source, args, stdin
 
@@ -133,9 +124,6 @@ class Run(commands.Cog, name='CodeExecution'):
 
         language, args, stdin = match.groups()
 
-        if args:
-            args = [arg for arg in args.strip().split('\n') if arg]
-
         if not language:
             language = filename_split[-1]
 
@@ -159,6 +147,16 @@ class Run(commands.Cog, name='CodeExecution'):
 
         # Add boilerplate code to supported languages
         source = add_boilerplate(language, source)
+
+        # Resolve aliases for language
+        language = self.languages[language]
+
+        # Split args at newlines
+        if args:
+            args = [arg for arg in args.strip().split('\n') if arg]
+
+        if not source:
+            raise commands.BadArgument(f'No source code found')
 
         # Call piston API
         data = {
