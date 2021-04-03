@@ -36,11 +36,14 @@ class PistonBot(AutoShardedBot):
         return user.id in self.config['admins']
 
     async def log_error(self, error, error_source=None):
+        is_context = isinstance(error_source, Context)
+        has_attachment = bool(error_source.message.attachments) if is_context else False
         self.last_errors.append((
             error,
             datetime.now(tz=timezone.utc),
             error_source,
-            error_source.message.content if isinstance(error_source, Context) else None
+            error_source.message.content if is_context else None,
+            error_source.message.attachments[0] if has_attachment else None,
         ))
         await client.change_presence(activity=self.error_activity)
 

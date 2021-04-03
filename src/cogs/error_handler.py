@@ -188,7 +188,7 @@ class ErrorHandler(commands.Cog, name='ErrorHandler'):
             await ctx.send('Error index does not exist')
             return
 
-        exc, date, error_source, orig_content = error_log[n]
+        exc, date, error_source, orig_content, orig_attachment = error_log[n]
         delta = (datetime.now(tz=timezone.utc) - date).total_seconds()
         hours = int(delta // 3600)
         seconds = int(delta - (hours * 3600))
@@ -229,6 +229,12 @@ class ErrorHandler(commands.Cog, name='ErrorHandler'):
         response.append('```')
 
         await ctx.send('\n'.join(response), embed=e)
+
+        if orig_attachment:
+            await ctx.send(
+                'Attached file:',
+                file=await orig_attachment.to_file()
+            )
 
     # @commands.command()
     # async def error_mock(self, ctx):
