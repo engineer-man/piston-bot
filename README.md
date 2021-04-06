@@ -6,7 +6,7 @@ Source code for the "I Run Code" Discord Bot used to run code snippets inside Di
 
 You can add me to your server [here](https://emkc.org/run) 
 
-To see a list of supported languages click [here](https://github.com/engineer-man/piston-bot/blob/master/src/cogs/run.py#L29)
+To see a list of supported languages click [here](https://github.com/engineer-man/piston#Supported-Languages)
 
 If you have questions check by our [Discord Server](https://discord.com/invite/engineerman)
 
