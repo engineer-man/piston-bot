@@ -39,6 +39,7 @@ class Run(commands.Cog, name='CodeExecution'):
             versions = await response.json()
         for version in versions:
             language = version['name']
+            self.languages[language] = language
             for alias in version['aliases']:
                 self.languages[alias] = language
 
