@@ -179,7 +179,7 @@ class Run(commands.Cog, name='CodeExecution'):
             except ContentTypeError:
                 raise PistonInvalidContentType('invalid content type')
         if not response.status == 200:
-            raise PistonInvalidStatus(f'{response.status}{r.get("message", "")}')
+            raise PistonInvalidStatus(f'status {response.status}: {r.get("message", "")}')
         if r['output'] is None:
             raise PistonNoOutput('no output')
 
