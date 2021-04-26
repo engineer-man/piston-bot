@@ -88,8 +88,9 @@ class Run(commands.Cog, name='CodeExecution'):
 
         if not language:
             language = syntax
-
-        language = language.lower()
+            
+        if language:
+            language = language.lower()
 
         if language not in self.languages:
             raise commands.BadArgument(
@@ -130,7 +131,8 @@ class Run(commands.Cog, name='CodeExecution'):
         if not language:
             language = filename_split[-1]
 
-        language = language.lower()
+        if language:
+            language = language.lower()
 
         if language not in self.languages:
             raise commands.BadArgument(
