@@ -144,18 +144,17 @@ class Run(commands.Cog, name='CodeExecution'):
         except UnicodeDecodeError as e:
             raise commands.BadArgument(str(e))
 
-
         return language, source, args, stdin
 
     async def get_run_output(self, ctx):
         # Get parameters to call api depending on how the command was called (file <> codeblock)
         if ctx.message.attachments:
-            language, source, args, stdin = await self.get_api_parameters_with_file(ctx)
+            alias, source, args, stdin = await self.get_api_parameters_with_file(ctx)
         else:
-            language, source, args, stdin = await self.get_api_parameters_with_codeblock(ctx)
+            alias, source, args, stdin = await self.get_api_parameters_with_codeblock(ctx)
 
         # Resolve aliases for language
-        language = self.languages[language]
+        language = self.languages[alias]
 
         # Add boilerplate code to supported languages
         source = add_boilerplate(language, source)
@@ -169,14 +168,18 @@ class Run(commands.Cog, name='CodeExecution'):
 
         # Call piston API
         data = {
-            'language': language, 'source': source, 'args': args, 'stdin': stdin or "", 'log': 0
+            'language': alias,
+            'version': '*',
+            'files': [{'content': source}],
+            'args': args,
+            'stdin': stdin or "",
+            'log': 0
         }
         headers = {'Authorization': self.client.config["emkc_key"]}
-
         async with self.client.session.post(
-            'https://emkc.org/api/v1/piston/execute',
+            'https://emkc.org/api/v2/piston/execute',
             headers=headers,
-            data=json.dumps(data)
+            json=data
         ) as response:
             try:
                 r = await response.json()
@@ -184,6 +187,8 @@ class Run(commands.Cog, name='CodeExecution'):
                 raise PistonInvalidContentType('invalid content type')
         if not response.status == 200:
             raise PistonInvalidStatus(f'status {response.status}: {r.get("message", "")}')
+
+        r = r['run']
         if r['output'] is None:
             raise PistonNoOutput('no output')
 
