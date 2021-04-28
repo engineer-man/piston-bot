@@ -45,13 +45,13 @@ class Run(commands.Cog, name='CodeExecution'):
     @tasks.loop(count=1)
     async def get_available_languages(self):
         async with self.client.session.get(
-            'https://emkc.org/api/v1/piston/versions'
+            'https://emkc.org/api/v2/piston/runtimes'
         ) as response:
-            versions = await response.json()
-        for version in versions:
-            language = version['name']
+            runtimes = await response.json()
+        for runtime in runtimes:
+            language = runtime['language']
             self.languages[language] = language
-            for alias in version['aliases']:
+            for alias in runtime['aliases']:
                 self.languages[alias] = language
 
     async def send_to_log(self, ctx, language, source):
