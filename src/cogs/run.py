@@ -154,11 +154,11 @@ class Run(commands.Cog, name='CodeExecution'):
         else:
             language, source, args, stdin = await self.get_api_parameters_with_codeblock(ctx)
 
-        # Add boilerplate code to supported languages
-        source = add_boilerplate(language, source)
-
         # Resolve aliases for language
         language = self.languages[language]
+
+        # Add boilerplate code to supported languages
+        source = add_boilerplate(language, source)
 
         # Split args at newlines
         if args:
