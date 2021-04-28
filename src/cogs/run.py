@@ -29,6 +29,17 @@ class Run(commands.Cog, name='CodeExecution'):
         self.client = client
         self.run_IO_store = dict()  # Store the most recent /run message for each user.id
         self.languages = dict()  # Store the supported languages and aliases
+        self.run_regex_code = re.compile(
+            r'(?s)/(?:edit_last_)?run(?: +(?P<language>\S*)\s*|\s*)(?:\n'
+            r'(?P<args>(?:[^\n\r\f\v]*\n)*?)\s*|\s*)'
+            r'```(?:(?P<syntax>\S+)\n\s*|\s*)(?P<source>.*)```'
+            r'(?:\n?(?P<stdin>(?:[^\n\r\f\v]\n?)+)+|)'
+        )
+        self.run_regex_file = re.compile(
+            r'(?s)/run(?: *(?P<language>\S*)|\s*)?'
+            r'(?:\n(?P<args>(?:[^\n\r\f\v]\n?)*))?'
+            r'(?:\n+(?P<stdin>(?:[^\n\r\f\v]\n*)+)|)'
+        )
         self.get_available_languages.start()
 
     @tasks.loop(count=1)
@@ -72,14 +83,7 @@ class Run(commands.Cog, name='CodeExecution'):
         if ctx.message.content.count('```') != 2:
             raise commands.BadArgument('Invalid command format (missing codeblock?)')
 
-        run_regex = re.compile(
-            r'(?s)/(?:edit_last_)?run(?: +(?P<language>\S*)\s*|\s*)(?:\n'
-            r'(?P<args>(?:[^\n\r\f\v]*\n)*?)\s*|\s*)'
-            r'```(?:(?P<syntax>\S+)\n\s*|\s*)(?P<source>.*)```'
-            r'(?:\n?(?P<stdin>(?:[^\n\r\f\v]\n?)+)+|)'
-        )
-
-        match = run_regex.search(ctx.message.content)
+        match = self.run_regex_code.search(ctx.message.content)
 
         if not match:
             raise commands.BadArgument('Invalid command format')
@@ -115,13 +119,7 @@ class Run(commands.Cog, name='CodeExecution'):
         if len(filename_split) < 2:
             raise commands.BadArgument('Please provide a source file with a file extension')
 
-        run_regex = re.compile(
-            r'(?s)/run(?: *(?P<language>\S*)|\s*)?'
-            r'(?:\n(?P<args>(?:[^\n\r\f\v]\n?)*))?'
-            r'(?:\n+(?P<stdin>(?:[^\n\r\f\v]\n*)+)|)'
-        )
-
-        match = run_regex.search(ctx.message.content)
+        match = self.run_regex_file.search(ctx.message.content)
 
         if not match:
             raise commands.BadArgument('Invalid command format')
