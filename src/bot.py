@@ -9,6 +9,7 @@ from os import path, listdir
 from discord.ext.commands import AutoShardedBot, Context
 from discord import Activity, AllowedMentions
 from aiohttp import ClientSession, ClientTimeout
+from discord.ext.commands.bot import when_mentioned_or
 
 
 class PistonBot(AutoShardedBot):
@@ -49,7 +50,7 @@ class PistonBot(AutoShardedBot):
 
 
 client = PistonBot(
-    command_prefix=('/'),
+    command_prefix=when_mentioned_or('/'),
     description='Hello, I can run code!',
     max_messages=15000,
     allowed_mentions=AllowedMentions(everyone=False, users=True, roles=False)
