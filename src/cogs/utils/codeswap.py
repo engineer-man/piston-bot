@@ -49,11 +49,13 @@ def for_c_cpp(source):
     return '\n'.join(imports + code)
 
 def for_csharp(source):
-    if 'static void Main' in source:
+    if 'class' in source:
         return source
 
     imports=[]
-    code = ['class Program{static void Main(string[] args){']
+    code = ['class Program{']
+    if not 'static void Main' in source:
+        code.append('static void Main(string[] args){')
 
     lines = source.replace(';', ';\n').split('\n')
     for line in lines:
@@ -61,7 +63,11 @@ def for_csharp(source):
             imports.append(line)
         else:
             code.append(line)
-    code.append('}}')
+
+    if not 'static void Main' in source:
+        code.append('}')
+    code.append('}')
+
     return '\n'.join(imports + code)
 
 def for_java(source):
