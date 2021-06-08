@@ -188,8 +188,9 @@ class Run(commands.Cog, name='CodeExecution'):
         if not response.status == 200:
             raise PistonInvalidStatus(f'status {response.status}: {r.get("message", "")}')
 
+        comp_stderr = r['compile']['stderr'] if 'compile' in r else ''
         run = r['run']
-        comp = r['compile']
+
         if run['output'] is None:
             raise PistonNoOutput('no output')
 
@@ -197,11 +198,11 @@ class Run(commands.Cog, name='CodeExecution'):
         await self.send_to_log(ctx, language, source)
 
         # Return early if no output was received
-        if len(run['output'] + comp['stderr']) == 0:
+        if len(run['output'] + comp_stderr) == 0:
             return f'Your code ran without output {ctx.author.mention}'
 
         # Limit output to 30 lines maximum
-        output = '\n'.join((comp['stderr'] + run['output']).split('\n')[:30])
+        output = '\n'.join((comp_stderr + run['output']).split('\n')[:30])
 
         # Prevent mentions in the code output
         output = escape_mentions(output)
@@ -210,7 +211,7 @@ class Run(commands.Cog, name='CodeExecution'):
         output = output.replace("`", "`\u200b")
 
         # Truncate output to be below 2000 char discord limit.
-        if len(comp['stderr']) > 0:
+        if len(comp_stderr) > 0:
             introduction = f'{ctx.author.mention} I received compile errors\n'
         elif len(run['stdout']) == 0 and len(run['stderr']) > 0:
             introduction = f'{ctx.author.mention} I only received error output\n'
