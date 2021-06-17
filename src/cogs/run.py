@@ -98,7 +98,7 @@ class Run(commands.Cog, name='CodeExecution'):
 
         if language not in self.languages:
             raise commands.BadArgument(
-                f'Unsupported language: **{language}**\n'
+                f'Unsupported language: **{language[:1000]}**\n'
                 '[Request a new language](https://github.com/engineer-man/piston/issues)'
             )
 
@@ -323,7 +323,7 @@ class Run(commands.Cog, name='CodeExecution'):
             return
         for prefix in prefixes:
             if after.content.lower().startswith(f'{prefix}run'):
-                after.content = after.content.replace(f'{prefix}run', f'{prefix}edit_last_run')
+                after.content = after.content.replace(f'{prefix}run', f'{prefix}edit_last_run', 1)
                 await self.client.process_commands(after)
                 break
 
