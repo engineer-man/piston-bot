@@ -196,39 +196,43 @@ class ErrorHandler(commands.Cog, name='ErrorHandler'):
         tb = ''.join(
             traceback.format_exception(type(exc), exc, exc.__traceback__)
         )
-        response = [f'`Error occured {delta_str}`']
+        response_header = [f'`Error occured {delta_str}`']
+        response_error = []
 
         if isinstance(error_source, commands.Context):
             guild = error_source.guild
             channel = error_source.channel
-            response.append(
+            response_header.append(
                 f'`Server:{guild.name} | Channel: {channel.name}`' if guild else '`In DMChannel`'
             )
-            response.append(
+            response_header.append(
                 f'`User: {error_source.author.name}#{error_source.author.discriminator}`'
             )
-            response.append(f'`Command: {error_source.invoked_with}`')
-            response.append(error_source.message.jump_url)
+            response_header.append(f'`Command: {error_source.invoked_with}`')
+            response_header.append(error_source.message.jump_url)
             e = Embed(title='Full command that caused the error:',
                       description=orig_content)
             e.set_footer(text=error_source.author.display_name,
                          icon_url=error_source.author.avatar_url)
         else:
-            response.append(f'`Error caught in {error_source}`')
+            response_header.append(f'`Error caught in {error_source}`')
             e = None
-        response.append(f'```python\n')
-        num_chars = sum(len(line) for line in response)
-        for line in tb.split('\n'):
-            num_chars += len(line)
-            response.append(line)
-            if num_chars > 1800:
-                response.append('```')
-                await ctx.send('\n'.join(response))
-                response = ['```python\n']
-                num_chars = 0
-        response.append('```')
 
-        await ctx.send('\n'.join(response), embed=e)
+        for line in tb.split('\n'):
+            while len(line) > 1800:
+                response_error.append(line[:1800])
+                line = line[1800:]
+            response_error.append(line)
+
+        to_send = '\n'.join(response_header) + '\n```python'
+
+        for line in response_error:
+            if len(to_send) + len(line) + 1 > 1800:
+                await ctx.send(to_send + '\n```')
+                to_send = '```python'
+            to_send += '\n' + line
+        await ctx.send(to_send + '\n```', embed=e)
+
 
         if orig_attachment:
             await ctx.send(
@@ -237,9 +241,9 @@ class ErrorHandler(commands.Cog, name='ErrorHandler'):
             )
 
     # @commands.command()
-    # async def error_mock(self, ctx):
+    # async def error_mock(self, ctx, n=1):
     #     print('MOCKING')
-    #     raise CustomError('Mocked Test Error')
+    #     raise IndexError('Mocked Test Error'*n)
 
     # @commands.Cog.listener()
     # async def on_message_edit(self, before, after):
