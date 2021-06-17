@@ -98,7 +98,7 @@ class Run(commands.Cog, name='CodeExecution'):
 
         if language not in self.languages:
             raise commands.BadArgument(
-                f'Unsupported language: **{language[:1000]}**\n'
+                f'Unsupported language: **{str(language)[:1000]}**\n'
                 '[Request a new language](https://github.com/engineer-man/piston/issues)'
             )
 
