@@ -138,7 +138,7 @@ class ErrorHandler(commands.Cog, name='ErrorHandler'):
                 + date.isoformat().split('.')[0]
                 + '] - ['
                 + call_info
-                + f']\nException: {exc}'
+                + f']\nException: {str(exc)[:200]}'
             )
             if i % NUM_ERRORS_PER_PAGE == NUM_ERRORS_PER_PAGE-1:
                 response.append('```')
