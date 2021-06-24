@@ -35,6 +35,16 @@ class Management(commands.Cog, name='Management'):
         activity = self.client.error_activity if unloaded else self.client.default_activity
         await self.client.change_presence(activity=activity)
 
+    @commands.Cog.listener()
+    async def on_guild_join(self, guild):
+        self.client.recent_guilds_joined.append((datetime.now(tz=timezone.utc), guild))
+        self.client.recent_guild_joined = self.client.recent_guild_joined[-10:]
+
+    @commands.Cog.listener()
+    async def on_guild_remove(self, guild):
+        self.client.recent_guilds_left.append((datetime.now(tz=timezone.utc), guild))
+        self.client.recent_guild_left = self.client.recent_guild_left[-10:]
+
     def reload_config(self):
         with open("../state/config.json") as conffile:
             self.client.config = json.load(conffile)
@@ -165,11 +175,11 @@ class Management(commands.Cog, name='Management'):
             fp=BytesIO(to_send.encode()),
             filename=f'servers_{datetime.now(tz=timezone.utc).isoformat()}.txt'
         ) if include_txt else None
-        shrds = '\n'.join(
-            f'#{s.id}, {s.latency}ms, count={s.shard_count}' for s in self.client.shards.values()
-        )
+        j = '\n'.join(t.isoformat() + ' | ' + g.name for t,g in self.client.recent_guilds_joined)
+        l = '\n'.join(t.isoformat() + ' | ' + g.name for t,g in self.client.recent_guilds_left)
         await ctx.send(
-            f'**I am active in {len(self.client.guilds)} Servers** ```\nShards:\n' + shrds + '```',
+            f'**I am active in {len(self.client.guilds)} Servers | # of Shards: {len(self.client.shards)}** ' +
+            f'```\nJoined recently:{j}```\n```\nLeft Recently:{l}```',
             file=file
         )
 

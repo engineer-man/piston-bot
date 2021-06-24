@@ -19,6 +19,8 @@ class PistonBot(AutoShardedBot):
         with open('../state/config.json') as conffile:
             self.config = json.load(conffile)
         self.last_errors = []
+        self.recent_guilds_joined = []
+        self.recent_guilds_left = []
         self.default_activity = Activity(name='emkc.org/run | /run', type=0)
         self.error_activity = Activity(name='!emkc.org/run | /run', type=0)
         self.maintenance_activity = Activity(name='undergoing maintenance', type=0)
