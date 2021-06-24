@@ -38,14 +38,14 @@ class Management(commands.Cog, name='Management'):
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
         self.client.recent_guilds_joined.append(
-            tuple(datetime.now(tz=timezone.utc).isoformat()[:19], guild)
+            (datetime.now(tz=timezone.utc).isoformat()[:19], guild)
         )
         self.client.recent_guilds_joined = self.client.recent_guilds_joined[-10:]
 
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
         self.client.recent_guilds_left.append(
-            tuple(datetime.now(tz=timezone.utc).isoformat()[:19], guild)
+            (datetime.now(tz=timezone.utc).isoformat()[:19], guild)
         )
         self.client.recent_guilds_left = self.client.recent_guilds_left[-10:]
 
