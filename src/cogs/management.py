@@ -165,8 +165,11 @@ class Management(commands.Cog, name='Management'):
             fp=BytesIO(to_send.encode()),
             filename=f'servers_{datetime.now(tz=timezone.utc).isoformat()}.txt'
         ) if include_txt else None
+        shrds = '\n'.join(
+            f'#{s.id}, {s.latency}ms, count={s.shard_count}' for s in self.client.shards.values()
+        )
         await ctx.send(
-            f'**I am active in {len(self.client.guilds)} Servers**',
+            f'**I am active in {len(self.client.guilds)} Servers** ```\nShards:\n' + shrds + '```',
             file=file
         )
 
