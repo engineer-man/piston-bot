@@ -37,12 +37,16 @@ class Management(commands.Cog, name='Management'):
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
-        self.client.recent_guilds_joined.append((datetime.now(tz=timezone.utc), guild))
+        self.client.recent_guilds_joined.append(
+            tuple(datetime.now(tz=timezone.utc).isoformat()[:19], guild)
+        )
         self.client.recent_guilds_joined = self.client.recent_guilds_joined[-10:]
 
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
-        self.client.recent_guilds_left.append((datetime.now(tz=timezone.utc), guild))
+        self.client.recent_guilds_left.append(
+            tuple(datetime.now(tz=timezone.utc).isoformat()[:19], guild)
+        )
         self.client.recent_guilds_left = self.client.recent_guilds_left[-10:]
 
     def reload_config(self):
@@ -175,11 +179,12 @@ class Management(commands.Cog, name='Management'):
             fp=BytesIO(to_send.encode()),
             filename=f'servers_{datetime.now(tz=timezone.utc).isoformat()}.txt'
         ) if include_txt else None
-        j = '\n'.join(t.isoformat() + ' | ' + str(g.name) for t,g in self.client.recent_guilds_joined)
-        l = '\n'.join(t.isoformat() + ' | ' + str(g.name) for t,g in self.client.recent_guilds_left)
+        j = '\n'.join(f'{time} | {guild.name}' for time, guild in self.client.recent_guilds_joined)
+        l = '\n'.join(f'{time} | {guild.name}' for time, guild in self.client.recent_guilds_left)
         await ctx.send(
-            f'**I am active in {len(self.client.guilds)} Servers | # of Shards: {len(self.client.shards)}** ' +
-            f'```\nJoined recently:{j}```\n```\nLeft Recently:{l}```',
+            f'**I am active in {len(self.client.guilds)} Servers ' +
+            f'| # of Shards: {len(self.client.shards)}** ' +
+            f'```\nJoined recently:\n{j}```\n```\nLeft Recently:\n{l}```',
             file=file
         )
 
