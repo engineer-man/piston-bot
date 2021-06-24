@@ -175,8 +175,8 @@ class Management(commands.Cog, name='Management'):
             fp=BytesIO(to_send.encode()),
             filename=f'servers_{datetime.now(tz=timezone.utc).isoformat()}.txt'
         ) if include_txt else None
-        j = '\n'.join(t.isoformat() + ' | ' + g.name for t,g in self.client.recent_guilds_joined)
-        l = '\n'.join(t.isoformat() + ' | ' + g.name for t,g in self.client.recent_guilds_left)
+        j = '\n'.join(t.isoformat() + ' | ' + str(g.name) for t,g in self.client.recent_guilds_joined)
+        l = '\n'.join(t.isoformat() + ' | ' + str(g.name) for t,g in self.client.recent_guilds_left)
         await ctx.send(
             f'**I am active in {len(self.client.guilds)} Servers | # of Shards: {len(self.client.shards)}** ' +
             f'```\nJoined recently:{j}```\n```\nLeft Recently:{l}```',
