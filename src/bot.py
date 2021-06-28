@@ -79,6 +79,14 @@ async def on_ready():
     print('PistonBot started successfully')
     return True
 
+@client.event
+async def on_message(msg):
+    prefixes = await client.get_prefix(msg)
+    for prefix in prefixes:
+        if msg.content.lower().startswith(f'{prefix}run'):
+            msg.content = msg.content.replace(f'{prefix}run', f'/run', 1)
+            break
+    await client.process_commands(msg)
 
 @client.event
 async def on_error(event_method, *args, **kwargs):

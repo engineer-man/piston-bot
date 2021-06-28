@@ -323,7 +323,7 @@ class Run(commands.Cog, name='CodeExecution'):
             return
         for prefix in prefixes:
             if after.content.lower().startswith(f'{prefix}run'):
-                after.content = after.content.replace(f'{prefix}run', f'{prefix}edit_last_run', 1)
+                after.content = after.content.replace(f'{prefix}run', f'/edit_last_run', 1)
                 await self.client.process_commands(after)
                 break
 
