@@ -342,16 +342,21 @@ class Run(commands.Cog, name='CodeExecution'):
     async def send_howto(self, ctx):
         languages = sorted(set(self.languages.values()))
 
-        run_instructions = (
-            '**Here are my supported languages:**\n'
-            + ', '.join(languages) +
-            '\n\n**You can run code like this:**\n'
-            '/run <language>\ncommand line parameters (optional) - 1 per line\n'
-            '\\`\\`\\`\nyour code\n\\`\\`\\`\nstandard input (optional)\n'
-            '\n**Provided by the Engineer Man Discord Server - visit:**\n'
-            '• https://emkc.org/run to get it in your own server\n'
-            '• https://discord.gg/engineerman for more info\n'
-        )
+        run_instructions = "\n".join((
+            f"**Here are my supported languages:**",
+            f"{', '.join(languages)}\n",
+            f"**You can run code like this:**",
+            f"/run <language>",
+            f"command line parameters (optional) - 1 per line",
+            f"\`\`\`<syntax>",
+            f"your code",
+            f"\`\`\`",
+            f"standard input (optional)\n",
+            f"You have to provide either `language` or `syntax`.\n",
+            f"**Provided by the Engineer Man Discord Server - visit:**",
+            f"• https://emkc.org/run to get it in your own server",
+            f"• https://discord.gg/engineerman for more info\n",
+        ))
 
         e = Embed(title='I can execute code right here in Discord! (click here for instructions)',
                   description=run_instructions,
