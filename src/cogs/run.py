@@ -350,7 +350,7 @@ class Run(commands.Cog, name='CodeExecution'):
             **You can run code like this:**
             /run python
             \`\`\`
-            your code
+            print("Hello, World!")
             \`\`\`
 
             **Provided by the Engineer Man Discord Server - visit:**
