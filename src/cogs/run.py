@@ -8,6 +8,7 @@ Commands:
 # pylint: disable=E0402
 import json
 import re
+from textwrap import dedent
 from dataclasses import dataclass
 from discord import Embed, Message, errors as discord_errors
 from discord.ext import commands, tasks
@@ -342,24 +343,20 @@ class Run(commands.Cog, name='CodeExecution'):
     async def send_howto(self, ctx):
         languages = sorted(set(self.languages.values()))
 
-        run_instructions = f"""
+        run_instructions = dedent(f"""
             **Here are my supported languages:**
             {', '.join(languages)}
 
             **You can run code like this:**
-            /run <language>
-            command line parameters (optional) - 1 per line
-            \`\`\`<syntax>
+            /run python
+            \`\`\`
             your code
             \`\`\`
-            standard input (optional)
-
-            You have to provide either `language` or `syntax`.
 
             **Provided by the Engineer Man Discord Server - visit:**
             • https://emkc.org/run to get it in your own server
             • https://discord.gg/engineerman for more info
-            """.replace("    ", "")
+            """)
 
         e = Embed(title='I can execute code right here in Discord! (click here for instructions)',
                   description=run_instructions,
