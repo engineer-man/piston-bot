@@ -5,7 +5,7 @@ def add_boilerplate(language, source):
         return for_scala(source)
     if language == 'rust':
         return for_rust(source)
-    if language == 'c' or language == 'cpp':
+    if language == 'c' or language == 'c++':
         return for_c_cpp(source)
     if language == 'go':
         return for_go(source)
