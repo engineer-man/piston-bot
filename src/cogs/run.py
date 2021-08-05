@@ -29,6 +29,7 @@ class Run(commands.Cog, name='CodeExecution'):
         self.client = client
         self.run_IO_store = dict()  # Store the most recent /run message for each user.id
         self.languages = dict()  # Store the supported languages and aliases
+        self.versions = dict() # Store version for each language
         self.run_regex_code = re.compile(
             r'(?s)/(?:edit_last_)?run(?: +(?P<language>\S*)\s*|\s*)(?:\n'
             r'(?P<args>(?:[^\n\r\f\v]*\n)*?)\s*|\s*)'
@@ -51,6 +52,7 @@ class Run(commands.Cog, name='CodeExecution'):
         for runtime in runtimes:
             language = runtime['language']
             self.languages[language] = language
+            self.versions[language] = runtime['version']
             for alias in runtime['aliases']:
                 self.languages[alias] = language
 
@@ -156,6 +158,8 @@ class Run(commands.Cog, name='CodeExecution'):
         # Resolve aliases for language
         language = self.languages[alias]
 
+        version = self.versions[language]
+
         # Add boilerplate code to supported languages
         source = add_boilerplate(language, source)
 
@@ -169,7 +173,7 @@ class Run(commands.Cog, name='CodeExecution'):
         # Call piston API
         data = {
             'language': alias,
-            'version': '*',
+            'version': version,
             'files': [{'content': source}],
             'args': args,
             'stdin': stdin or "",
@@ -216,7 +220,7 @@ class Run(commands.Cog, name='CodeExecution'):
         elif len(run['stdout']) == 0 and len(run['stderr']) > 0:
             introduction = f'{ctx.author.mention} I only received error output\n'
         else:
-            introduction = f'Here is your output {ctx.author.mention}\n'
+            introduction = f'Here is your {language}({version}) output {ctx.author.mention}\n'
         truncate_indicator = '[...]'
         len_codeblock = 7  # 3 Backticks + newline + 3 Backticks
         available_chars = 2000-len(introduction)-len_codeblock
