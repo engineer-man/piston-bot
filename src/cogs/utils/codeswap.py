@@ -9,7 +9,7 @@ def add_boilerplate(language, source):
         return for_c_cpp(source)
     if language == 'go':
         return for_go(source)
-    if language == 'csharp':
+    if language == 'mono':
         return for_csharp(source)
     return source
 
