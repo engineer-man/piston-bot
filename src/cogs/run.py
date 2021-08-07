@@ -201,9 +201,11 @@ class Run(commands.Cog, name='CodeExecution'):
         # Logging
         await self.send_to_log(ctx, language, source)
 
+        language_info=f'{language}({version})'
+
         # Return early if no output was received
         if len(run['output'] + comp_stderr) == 0:
-            return f'Your code ran without output {ctx.author.mention}'
+            return f'Your {language_info} code ran without output {ctx.author.mention}'
 
         # Limit output to 30 lines maximum
         output = '\n'.join((comp_stderr + run['output']).split('\n')[:30])
@@ -216,11 +218,11 @@ class Run(commands.Cog, name='CodeExecution'):
 
         # Truncate output to be below 2000 char discord limit.
         if len(comp_stderr) > 0:
-            introduction = f'{ctx.author.mention} I received compile errors\n'
+            introduction = f'{ctx.author.mention} I received {language_info} compile errors\n'
         elif len(run['stdout']) == 0 and len(run['stderr']) > 0:
-            introduction = f'{ctx.author.mention} I only received error output\n'
+            introduction = f'{ctx.author.mention} I only received {language_info} error output\n'
         else:
-            introduction = f'Here is your {language}({version}) output {ctx.author.mention}\n'
+            introduction = f'Here is your {language_info} output {ctx.author.mention}\n'
         truncate_indicator = '[...]'
         len_codeblock = 7  # 3 Backticks + newline + 3 Backticks
         available_chars = 2000-len(introduction)-len_codeblock
