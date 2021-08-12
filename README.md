@@ -17,36 +17,23 @@ If you have questions check by our [Discord Server](https://discord.com/invite/e
 
 ````
 /run [language]
-```[syntax]
+[args (optional)]
+'''[syntax]
 <your code>
-```
+'''
+[stdin (optional)]
 ````
 
 * You have to provide either `language` or `syntax`
-
-## Provide command line arguments
-````
-/run [language]
-[arg1]
-[arg2]
-```[syntax]
-<your code>
-```
-````
 * You can provide command line arguments by specifying them before the codeblock
 * Each line corresponds to one argument
-
-## Provide standard input
-````
-/run [language]
-```[syntax]
-<your code>
-```
-[input]
-````
 * You can provide standard input by specifying it after the codeblock
 
-## Use a file instead of a codeblock
+## Editing and deleting messages
+* You can edit your last `/run` message if you make a mistake and the bot will edit it's initial response.  
+* You can delete the last output message (that was caused by you) with `/delete` or `/del` or by deleting your most recent `/run` message
+
+## Use a source file instead of a codeblock
 
 ````
 /run [language]
@@ -64,10 +51,6 @@ If you have questions check by our [Discord Server](https://discord.com/invite/e
     * command line arguments should directly follow the `/run` line
     * stdin is everything that follows after the first double newline
 * Please note that attachments can not be edited therefore you can not use the edit functionality if you provide a source file
-
-## Editing and deleting messages
-+ You can edit your last `/run` message if you make a mistake and the bot will edit it's initial response.  
-+ You can delete the last output message (that was caused by you) with `/delete` or `/del` or by deleting your most recent `/run` message
 
 # Contributing
 If you want to contribute you can just submit a pull request.
