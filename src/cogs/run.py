@@ -202,7 +202,7 @@ class Run(commands.Cog, name='CodeExecution'):
         # Logging
         await self.send_to_log(ctx, language, source)
 
-        language_info=f'{language}({version})'
+        language_info=f'{alias}({version})'
 
         # Return early if no output was received
         if len(run['output'] + comp_stderr) == 0:
