@@ -55,6 +55,7 @@ class Run(commands.Cog, name='CodeExecution'):
             self.versions[language] = runtime['version']
             for alias in runtime['aliases']:
                 self.languages[alias] = language
+                self.versions[alias] = runtime['version']
 
     async def send_to_log(self, ctx, language, source):
         logging_data = {
@@ -158,7 +159,7 @@ class Run(commands.Cog, name='CodeExecution'):
         # Resolve aliases for language
         language = self.languages[alias]
 
-        version = self.versions[language]
+        version = self.versions[alias]
 
         # Add boilerplate code to supported languages
         source = add_boilerplate(language, source)
