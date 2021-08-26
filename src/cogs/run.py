@@ -233,7 +233,7 @@ class Run(commands.Cog, name='CodeExecution'):
         return (
             introduction
             + '```\n'
-            + output
+            + output.replace('\0', '')
             + '```'
         )
 
