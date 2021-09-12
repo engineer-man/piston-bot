@@ -86,7 +86,7 @@ def for_java(source):
             code.append(line)
 
     code.append('}}')
-    return '\n'.join(imports + code)
+    return '\n'.join(imports + code).replace(';\n',';')
 
 def for_scala(source):
     if any(s in source for s in ('extends App', 'def main', '@main def', '@main() def')):
