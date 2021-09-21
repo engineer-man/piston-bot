@@ -68,7 +68,7 @@ def for_csharp(source):
         code.append('}')
     code.append('}')
 
-    return '\n'.join(imports + code)
+    return '\n'.join(imports + code).replace(';\n', ';')
 
 def for_java(source):
     if 'class' in source:
