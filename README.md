@@ -16,7 +16,7 @@ If you have questions check by our [Discord Server](https://discord.com/invite/e
 ## Basic Syntax
 
 ````
-/run [language]
+/run [language] (-> [output syntax] (optional))
 [args (optional)]
 '''[syntax]
 <your code>
@@ -36,7 +36,7 @@ If you have questions check by our [Discord Server](https://discord.com/invite/e
 ## Use a source file instead of a codeblock
 
 ````
-/run [language]
+/run [language] (-> [output syntax] (optional))
 [args1]
 [args2]
 
@@ -80,6 +80,15 @@ Example config for VSCode:
 
 
 # What's new
+
+## 2021-09-26
+Added `output syntax` functionality.  
+* The `/run` command will now take an additional output syntax highlighting code on the first line after a `->`
+For example
+```
+/run cs -> json
+```
+will highlight the resulting output in discord as json.
 
 ## 2020-11-29
 Added `delete` functionality.  

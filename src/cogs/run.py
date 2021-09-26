@@ -31,15 +31,18 @@ class Run(commands.Cog, name='CodeExecution'):
         self.languages = dict()  # Store the supported languages and aliases
         self.versions = dict() # Store version for each language
         self.run_regex_code = re.compile(
-            r'(?s)/(?:edit_last_)?run(?: +(?P<language>\S*)\s*|\s*)(?:\n'
-            r'(?P<args>(?:[^\n\r\f\v]*\n)*?)\s*|\s*)'
+            r'(?s)/(?:edit_last_)?run'
+            r'(?: +(?P<language>\S*?)\s*|\s*)'
+            r'(?:-> *(?P<output_syntax>\S*)\s*|\s*)'
+            r'(?:\n(?P<args>(?:[^\n\r\f\v]*\n)*?)\s*|\s*)'
             r'```(?:(?P<syntax>\S+)\n\s*|\s*)(?P<source>.*)```'
             r'(?:\n?(?P<stdin>(?:[^\n\r\f\v]\n?)+)+|)'
         )
         self.run_regex_file = re.compile(
-            r'(?s)/run(?: *(?P<language>\S*)|\s*)?'
-            r'(?:\n(?P<args>(?:[^\n\r\f\v]\n?)*))?'
-            r'(?:\n+(?P<stdin>(?:[^\n\r\f\v]\n*)+)|)'
+            r'/run(?: *(?P<language>\S*)\s*?|\s*?)?'
+            r'(?: *-> *(?P<output>\S*)\s*?|\s*?)?'
+            r'(?:\n+(?P<args>(?:[^\n\r\f\v]+\n?)*)\s*|\s*)?'
+            r'(?:\n*(?P<stdin>(?:[^\n\r\f\v]\n?)+)+|)?'
         )
         self.get_available_languages.start()
 
@@ -91,7 +94,7 @@ class Run(commands.Cog, name='CodeExecution'):
         if not match:
             raise commands.BadArgument('Invalid command format')
 
-        language, args, syntax, source, stdin = match.groups()
+        language, output_syntax, args, syntax, source, stdin = match.groups()
 
         if not language:
             language = syntax
@@ -104,8 +107,8 @@ class Run(commands.Cog, name='CodeExecution'):
                 f'Unsupported language: **{str(language)[:1000]}**\n'
                 '[Request a new language](https://github.com/engineer-man/piston/issues)'
             )
-
-        return language, source, args, stdin
+        
+        return language, output_syntax, source, args, stdin
 
     async def get_api_parameters_with_file(self, ctx):
         if len(ctx.message.attachments) != 1:
@@ -127,7 +130,7 @@ class Run(commands.Cog, name='CodeExecution'):
         if not match:
             raise commands.BadArgument('Invalid command format')
 
-        language, args, stdin = match.groups()
+        language, output_syntax, args, stdin = match.groups()
 
         if not language:
             language = filename_split[-1]
@@ -147,14 +150,14 @@ class Run(commands.Cog, name='CodeExecution'):
         except UnicodeDecodeError as e:
             raise commands.BadArgument(str(e))
 
-        return language, source, args, stdin
+        return language, output_syntax, source, args, stdin
 
     async def get_run_output(self, ctx):
         # Get parameters to call api depending on how the command was called (file <> codeblock)
         if ctx.message.attachments:
-            alias, source, args, stdin = await self.get_api_parameters_with_file(ctx)
+            alias, output_syntax, source, args, stdin = await self.get_api_parameters_with_file(ctx)
         else:
-            alias, source, args, stdin = await self.get_api_parameters_with_codeblock(ctx)
+            alias, output_syntax, source, args, stdin = await self.get_api_parameters_with_codeblock(ctx)
 
         # Resolve aliases for language
         language = self.languages[alias]
@@ -230,9 +233,10 @@ class Run(commands.Cog, name='CodeExecution'):
         if len(output) > available_chars:
             output = output[:available_chars-len(truncate_indicator)] + truncate_indicator
 
+        # Use an empty string if no output language is selected
         return (
             introduction
-            + '```\n'
+            + f'```{output_syntax or ""}\n'
             + output.replace('\0', '')
             + '```'
         )
