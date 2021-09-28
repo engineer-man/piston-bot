@@ -107,7 +107,7 @@ class Run(commands.Cog, name='CodeExecution'):
                 f'Unsupported language: **{str(language)[:1000]}**\n'
                 '[Request a new language](https://github.com/engineer-man/piston/issues)'
             )
-        
+
         return language, output_syntax, source, args, stdin
 
     async def get_api_parameters_with_file(self, ctx):
@@ -265,6 +265,13 @@ class Run(commands.Cog, name='CodeExecution'):
         Type "/run" or "/help" for instructions"""
         if self.client.maintenance_mode:
             await ctx.send('Sorry - I am currently undergoing maintenance.')
+            return
+        banned_users = [
+            473160828502409217,
+            501851143203454986
+        ]
+        if ctx.author.id in banned_users:
+            await ctx.send('You have been banned from using I Run Code.')
             return
         await ctx.trigger_typing()
         if not source and not ctx.message.attachments:
