@@ -267,7 +267,7 @@ class Run(commands.Cog, name='CodeExecution'):
             await ctx.send('Sorry - I am currently undergoing maintenance.')
             return
         banned_users = [
-            473160828502409217,
+            #473160828502409217, # em
             501851143203454986
         ]
         if ctx.author.id in banned_users:
