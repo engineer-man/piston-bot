@@ -260,6 +260,8 @@ class Run(commands.Cog, name='CodeExecution'):
         Type "/run" or "/help" for instructions"""
         await self.delete_last_output(ctx.author.id)
 
+    
+    #displays member avatar
     @commands.command()
     async def av(self, ctx, *, member: discord.Member):
         embed = discord.Embed(
@@ -271,6 +273,43 @@ class Run(commands.Cog, name='CodeExecution'):
         
         
         await ctx.send(embed = embed)
+    
+
+    #changes member nickname
+    #needs corresponding intents and permissions
+    @commands.command()
+    async def nick(ctx, *, new_nick):
+    
+        if ctx.author.nick is None:
+
+            await ctx.author.edit(nick = new_nick)
+
+            embed = discord.Embed(
+                title = f"{ctx.author.name}'s name was changed.",
+                description = f"`{ctx.author.name}` **===>** `{new_nick}`",
+                colour = 0x1FB4DA
+            )
+
+            embed.set_thumbnail(url= ctx.author.avatar_url)
+            await ctx.send(ctx.author.mention, embed = embed)
+            
+        elif ctx.author.nick:
+
+            previous_nick = ctx.author.nick
+
+            await ctx.author.edit(nick = new_nick)
+
+            embed = discord.Embed(
+                title = f"{ctx.author.name}'s name was changed.",
+                description = f"`{previous_nick}` **===>** `{new_nick}`",
+                colour = 0x1FB4DA
+            )
+
+
+            embed.set_thumbnail(url = ctx.author.avatar_url)
+
+
+            await ctx.send(ctx.author.mention, embed = embed)
 
 
     @commands.command()
