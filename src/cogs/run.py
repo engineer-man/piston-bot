@@ -366,6 +366,7 @@ class Run(commands.Cog, name='CodeExecution'):
             '\n\n**You can run code like this:**\n'
             '/run <language>\ncommand line parameters (optional) - 1 per line\n'
             '\\`\\`\\`\nyour code\n\\`\\`\\`\nstandard input (optional)\n'
+            '\n**Note: the \\` character is usually directly below ESC**\n'
             '\n**Provided by the Engineer Man Discord Server - visit:**\n'
             '• https://emkc.org/run to get it in your own server\n'
             '• https://discord.gg/engineerman for more info\n'
