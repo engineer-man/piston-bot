@@ -10,6 +10,7 @@ import json
 import re
 from dataclasses import dataclass
 from discord import Embed, Message, errors as discord_errors
+import discord
 from discord.ext import commands, tasks
 from discord.utils import escape_mentions
 from aiohttp import ContentTypeError
@@ -258,6 +259,19 @@ class Run(commands.Cog, name='CodeExecution'):
         """Delete the most recent output message you caused
         Type "/run" or "/help" for instructions"""
         await self.delete_last_output(ctx.author.id)
+
+    @commands.command()
+    async def av(self, ctx, *, member: discord.Member):
+        embed = discord.Embed(
+        description = f"[Link to {member.mention}'s avatar url]({member.avatar_url})",
+        color = 0x2ECC71
+        )
+
+        embed.set_image(url= member.avatar_url)
+        
+        
+        await ctx.send(embed = embed)
+
 
     @commands.command()
     async def run(self, ctx, *, source=None):
