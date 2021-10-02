@@ -18,9 +18,9 @@ If you have questions check by our [Discord Server](https://discord.com/invite/e
 ````
 /run [language] (-> [output syntax] (optional))
 [args (optional)]
-'''[syntax]
+```[syntax]
 <your code>
-'''
+```
 [stdin (optional)]
 ````
 
