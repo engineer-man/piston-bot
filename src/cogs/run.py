@@ -273,7 +273,7 @@ class Run(commands.Cog, name='CodeExecution'):
         if ctx.author.id in banned_users:
             await ctx.send('You have been banned from using I Run Code.')
             return
-        await ctx.trigger_typing()
+        #await ctx.trigger_typing()
         if not source and not ctx.message.attachments:
             await self.send_howto(ctx)
             return
