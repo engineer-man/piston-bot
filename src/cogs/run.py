@@ -6,12 +6,16 @@ Commands:
 
 """
 # pylint: disable=E0402
+import asyncio
 import json
+import os
 import re
+from uuid import uuid4
 from dataclasses import dataclass
-from discord import Embed, Message, errors as discord_errors
+from discord import Embed, File, Message, errors as discord_errors
 from discord.ext import commands, tasks
 from discord.utils import escape_mentions
+from discord_components import Button
 from aiohttp import ContentTypeError
 from .utils.codeswap import add_boilerplate
 from .utils.errors import PistonInvalidContentType, PistonInvalidStatus, PistonNoOutput
@@ -279,7 +283,48 @@ class Run(commands.Cog, name='CodeExecution'):
             return
         try:
             run_output = await self.get_run_output(ctx)
-            msg = await ctx.send(run_output)
+            components = [
+                [
+                    Button(
+                        label="Send output as file",
+                        custom_id="file_output",
+                        style=3,
+                        )
+                    ]
+                ]
+            msg = await ctx.send(
+                run_output,
+                components=components,
+                )
+            while True:
+                try:
+                    interaction = await self.client.wait_for(
+                        "button_click",
+                        check = lambda i: i.message == msg and i.component.custom_id=="file_output",
+                        timeout = 60,
+                        )
+                    if interaction.user != ctx.author:
+                        await interaction.respond(
+                        content="These buttons are not for you."
+                            )
+                        continue
+                    output = run_output.splitlines()
+                    output.pop()
+                    output = "\n".join(output[2:])
+                    file_name = str(uuid4())+".txt"
+                    with open(file_name, "w") as f:
+                        f.write(output)
+                    with open(file_name, "rb") as f:
+                        await ctx.send(
+                            file = File(f,filename="output.txt"),
+                            components=[],
+                            )
+                        await msg.disable_components()
+                        os.remove(file_name)
+                    break
+                except asyncio.TimeoutError:
+                    await msg.disable_components()
+
         except commands.BadArgument as error:
             embed = Embed(
                 title='Error',

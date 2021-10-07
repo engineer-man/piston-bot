@@ -10,6 +10,7 @@ from discord.ext.commands import AutoShardedBot, Context
 from discord import Activity, AllowedMentions
 from aiohttp import ClientSession, ClientTimeout
 from discord.ext.commands.bot import when_mentioned_or
+from discord_components import DiscordComponents
 
 
 class PistonBot(AutoShardedBot):
@@ -76,6 +77,7 @@ for extension in reversed(STARTUP_EXTENSIONS):
 
 @client.event
 async def on_ready():
+    DiscordComponents(client)
     print('PistonBot started successfully')
     return True
 

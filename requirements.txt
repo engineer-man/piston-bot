@@ -1,1 +1,3 @@
 discord.py
+git+https://github.com/kiki7000/discord.py-components.git
+
