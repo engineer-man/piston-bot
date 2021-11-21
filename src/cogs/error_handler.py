@@ -213,7 +213,7 @@ class ErrorHandler(commands.Cog, name='ErrorHandler'):
             e = Embed(title='Full command that caused the error:',
                       description=orig_content)
             e.set_footer(text=error_source.author.display_name,
-                         icon_url=error_source.author.avatar_url)
+                         icon_url=error_source.author.avatar.url)
         else:
             response_header.append(f'`Error caught in {error_source}`')
             e = None
