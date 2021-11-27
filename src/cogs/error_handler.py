@@ -96,7 +96,11 @@ class ErrorHandler(commands.Cog, name='ErrorHandler'):
                 return
 
         # In case of an unhandled error -> Save the error so it can be accessed later
-        await ctx.send(f'{usr} {self.client.error_string}')
+        try:
+            await ctx.send(f'{usr} {self.client.error_string}')
+        except discord_errors.Forbidden:
+            pass
+
         await self.client.log_error(error, ctx)
 
         print(f'Ignoring exception in command {ctx.command}:', flush=True)
