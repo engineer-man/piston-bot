@@ -216,9 +216,9 @@ class ErrorHandler(commands.Cog, name='ErrorHandler'):
             response_header.append(error_source.message.jump_url)
             e = Embed(title='Full command that caused the error:',
                       description=orig_content)
-            if error_source.author:
-                e.set_footer(text=error_source.author.display_name,
-                         icon_url=error_source.author.avatar.url)
+            avatar = error_source.author.avatar
+            e.set_footer(text=error_source.author.display_name,
+                         icon_url=avatar.url if avatar else None)
         else:
             response_header.append(f'`Error caught in {error_source}`')
             e = None
