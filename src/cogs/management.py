@@ -15,7 +15,7 @@ import re
 from io import BytesIO
 from datetime import datetime, timezone
 from os import path, listdir
-from discord import File
+from discord import File, errors as discord_errors
 from discord.ext import commands
 
 
@@ -204,7 +204,10 @@ class Management(commands.Cog, name='Management'):
     )
     async def pull(self, ctx, noreload: typing.Optional[str] = None):
         """Pull the latest changes from github"""
-        await ctx.trigger_typing()
+        try:
+            await ctx.trigger_typing()
+        except discord_errors.Forbidden:
+            pass
         try:
             output = subprocess.check_output(
                 ['git', 'pull']).decode()
@@ -231,7 +234,10 @@ class Management(commands.Cog, name='Management'):
         """Reset repo to HEAD~[n]"""
         if not n > 0:
             raise commands.BadArgument('Please specify n>0')
-        await ctx.trigger_typing()
+        try:
+            await ctx.trigger_typing()
+        except discord_errors.Forbidden:
+            pass
         try:
             output = subprocess.check_output(
                 ['git', 'reset', '--hard', f'HEAD~{n}']).decode()
