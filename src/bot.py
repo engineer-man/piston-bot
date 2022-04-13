@@ -52,7 +52,7 @@ class PistonBot(AutoShardedBot):
 
 
 client = PistonBot(
-    command_prefix=when_mentioned_or('/'),
+    command_prefix=when_mentioned_or(('./', '/')),
     description='Hello, I can run code!',
     max_messages=15000,
     allowed_mentions=AllowedMentions(everyone=False, users=True, roles=False)
