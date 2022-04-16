@@ -41,8 +41,8 @@ class Run(commands.Cog, name='CodeExecution'):
         self.run_regex_file = re.compile(
             r'/run(?: *(?P<language>\S*)\s*?|\s*?)?'
             r'(?: *-> *(?P<output>\S*)\s*?|\s*?)?'
-            r'(?:\n+(?P<args>(?:[^\n\r\f\v]+\n?)*)\s*|\s*)?'
-            r'(?:\n*(?P<stdin>(?:[^\n\r\f\v]\n?)+)+|)?'
+            r'(?:\n(?P<args>(?:[^\n\r\f\v]+\n?)*)\s*|\s*)?'
+            r'(?:\n*(?P<stdin>(?:[^\n\r\f\v]\n*)+)+|)?'
         )
         self.get_available_languages.start()
 
