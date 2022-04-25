@@ -15,6 +15,7 @@ from discord.utils import escape_mentions
 from aiohttp import ContentTypeError
 from .utils.codeswap import add_boilerplate
 from .utils.errors import PistonInvalidContentType, PistonInvalidStatus, PistonNoOutput
+from guesslang import Guess
 #pylint: disable=E1101
 
 
@@ -29,7 +30,7 @@ class Run(commands.Cog, name='CodeExecution'):
         self.client = client
         self.run_IO_store = dict()  # Store the most recent /run message for each user.id
         self.languages = dict()  # Store the supported languages and aliases
-        self.versions = dict() # Store version for each language
+        self.versions = dict()  # Store version for each language
         self.run_regex_code = re.compile(
             r'(?s)/(?:edit_last_)?run'
             r'(?: +(?P<language>\S*?)\s*|\s*)'
@@ -44,6 +45,7 @@ class Run(commands.Cog, name='CodeExecution'):
             r'(?:\n(?P<args>(?:[^\n\r\f\v]+\n?)*)\s*|\s*)?'
             r'(?:\n*(?P<stdin>(?:[^\n\r\f\v]\n*)+)+|)?'
         )
+        self.guess = Guess()
         self.get_available_languages.start()
 
     @tasks.loop(count=1)
@@ -78,7 +80,8 @@ class Run(commands.Cog, name='CodeExecution'):
         ) as response:
             if response.status != 200:
                 await self.client.log_error(
-                    commands.CommandError(f'Error sending log. Status: {response.status}'),
+                    commands.CommandError(
+                        f'Error sending log. Status: {response.status}'),
                     ctx
                 )
                 return False
@@ -87,7 +90,8 @@ class Run(commands.Cog, name='CodeExecution'):
 
     async def get_api_parameters_with_codeblock(self, ctx):
         if ctx.message.content.count('```') != 2:
-            raise commands.BadArgument('Invalid command format (missing codeblock?)')
+            raise commands.BadArgument(
+                'Invalid command format (missing codeblock?)')
 
         match = self.run_regex_code.search(ctx.message.content)
 
@@ -101,6 +105,9 @@ class Run(commands.Cog, name='CodeExecution'):
 
         if language:
             language = language.lower()
+
+        if language not in self.languages:
+            language = self.guess.language_name(source)
 
         if language not in self.languages:
             raise commands.BadArgument(
@@ -118,12 +125,14 @@ class Run(commands.Cog, name='CodeExecution'):
 
         MAX_BYTES = 65535
         if file.size > MAX_BYTES:
-            raise commands.BadArgument(f'Source file is too big ({file.size}>{MAX_BYTES})')
+            raise commands.BadArgument(
+                f'Source file is too big ({file.size}>{MAX_BYTES})')
 
         filename_split = file.filename.split('.')
 
         if len(filename_split) < 2:
-            raise commands.BadArgument('Please provide a source file with a file extension')
+            raise commands.BadArgument(
+                'Please provide a source file with a file extension')
 
         match = self.run_regex_file.search(ctx.message.content)
 
@@ -137,6 +146,9 @@ class Run(commands.Cog, name='CodeExecution'):
 
         if language:
             language = language.lower()
+
+        if language not in self.languages:
+            language = self.guess.language_name(args)
 
         if language not in self.languages:
             raise commands.BadArgument(
@@ -194,7 +206,8 @@ class Run(commands.Cog, name='CodeExecution'):
             except ContentTypeError:
                 raise PistonInvalidContentType('invalid content type')
         if not response.status == 200:
-            raise PistonInvalidStatus(f'status {response.status}: {r.get("message", "")}')
+            raise PistonInvalidStatus(
+                f'status {response.status}: {r.get("message", "")}')
 
         comp_stderr = r['compile']['stderr'] if 'compile' in r else ''
         run = r['run']
@@ -205,7 +218,7 @@ class Run(commands.Cog, name='CodeExecution'):
         # Logging
         await self.send_to_log(ctx, language, source)
 
-        language_info=f'{alias}({version})'
+        language_info = f'{alias}({version})'
 
         # Return early if no output was received
         if len(run['output'] + comp_stderr) == 0:
@@ -231,7 +244,8 @@ class Run(commands.Cog, name='CodeExecution'):
         len_codeblock = 7  # 3 Backticks + newline + 3 Backticks
         available_chars = 2000-len(introduction)-len_codeblock
         if len(output) > available_chars:
-            output = output[:available_chars-len(truncate_indicator)] + truncate_indicator
+            output = output[:available_chars -
+                            len(truncate_indicator)] + truncate_indicator
 
         # Use an empty string if no output language is selected
         return (
@@ -267,7 +281,7 @@ class Run(commands.Cog, name='CodeExecution'):
             await ctx.send('Sorry - I am currently undergoing maintenance.')
             return
         banned_users = [
-            #473160828502409217, # em
+            # 473160828502409217, # em
             501851143203454986
         ]
         if ctx.author.id in banned_users:
@@ -344,7 +358,8 @@ class Run(commands.Cog, name='CodeExecution'):
             return
         for prefix in prefixes:
             if after.content.lower().startswith(f'{prefix}run'):
-                after.content = after.content.replace(f'{prefix}run', f'/edit_last_run', 1)
+                after.content = after.content.replace(
+                    f'{prefix}run', f'/edit_last_run', 1)
                 await self.client.process_commands(after)
                 break
 
