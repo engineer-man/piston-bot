@@ -256,13 +256,13 @@ class Run(commands.Cog, name='CodeExecution'):
     @commands.command(aliases=['del'])
     async def delete(self, ctx):
         """Delete the most recent output message you caused
-        Type "/run" or "/help" for instructions"""
+        Type "./run" or "./help" for instructions"""
         await self.delete_last_output(ctx.author.id)
 
     @commands.command()
     async def run(self, ctx, *, source=None):
         """Run some code
-        Type "/run" or "/help" for instructions"""
+        Type "./run" or "./help" for instructions"""
         if self.client.maintenance_mode:
             await ctx.send('Sorry - I am currently undergoing maintenance.')
             return
@@ -364,10 +364,13 @@ class Run(commands.Cog, name='CodeExecution'):
         languages = sorted(set(self.languages.values()))
 
         run_instructions = (
+            '**Update: Discord changed their client to prevent sending messages**\n'
+            '**that are preceeded by a slash (/)**\n'
+            '**To run code you can use `"./run"` or `" /run"` until further notice**\n\n'
             '**Here are my supported languages:**\n'
             + ', '.join(languages) +
             '\n\n**You can run code like this:**\n'
-            '/run <language>\ncommand line parameters (optional) - 1 per line\n'
+            './run <language>\ncommand line parameters (optional) - 1 per line\n'
             '\\`\\`\\`\nyour code\n\\`\\`\\`\nstandard input (optional)\n'
             '\n**Provided by the Engineer Man Discord Server - visit:**\n'
             '• https://emkc.org/run to get it in your own server\n'
