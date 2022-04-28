@@ -1,10 +1,9 @@
-# I Run Code
-
-## Important Change (May 2022)
+# Important Change/Update (May 2022)
 **Discord changed their client to prevent sending messages
 that are preceeded by a slash (/)
 To run code you can use `"./run"` or `" /run"` until further notice**
 
+# I Run Code
 Source code for the "I Run Code" Discord Bot used to run code snippets inside Discord chats.
 
 ![helloworld picture](helloworld.png)

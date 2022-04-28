@@ -379,7 +379,7 @@ class Run(commands.Cog, name='CodeExecution'):
 
         e = Embed(title='I can execute code right here in Discord! (click here for instructions)',
                   description=run_instructions,
-                  url='https://github.com/engineer-man/piston-bot#how-to-use',
+                  url='https://github.com/engineer-man/piston-bot',
                   color=0x2ECC71)
 
         await ctx.send(embed=e)
