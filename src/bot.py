@@ -48,7 +48,7 @@ class PistonBot(AutoShardedBot):
                 print('loading', extension)
                 await client.load_extension(f'{extension}')
             except Exception as e:
-                client.last_errors.append((e, datetime.now(tz=timezone.utc), 'Cog INIT', None))
+                await self.log_error(e, 'Cog INIT')
                 exc = f'{type(e).__name__}: {e}'
                 print(f'Failed to load extension {extension}\n{exc}')
 
