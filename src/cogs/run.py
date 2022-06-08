@@ -274,7 +274,7 @@ class Run(commands.Cog, name='CodeExecution'):
             await ctx.send('You have been banned from using I Run Code.')
             return
         try:
-            await ctx.trigger_typing()
+            await ctx.typing()
         except discord_errors.Forbidden:
             pass
         if not source and not ctx.message.attachments:

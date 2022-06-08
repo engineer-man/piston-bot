@@ -205,7 +205,7 @@ class Management(commands.Cog, name='Management'):
     async def pull(self, ctx, noreload: typing.Optional[str] = None):
         """Pull the latest changes from github"""
         try:
-            await ctx.trigger_typing()
+            await ctx.typing()
         except discord_errors.Forbidden:
             pass
         try:
@@ -235,7 +235,7 @@ class Management(commands.Cog, name='Management'):
         if not n > 0:
             raise commands.BadArgument('Please specify n>0')
         try:
-            await ctx.trigger_typing()
+            await ctx.typing()
         except discord_errors.Forbidden:
             pass
         try:
