@@ -7,7 +7,7 @@ import traceback
 from datetime import datetime, timezone
 from os import path, listdir
 from discord.ext.commands import AutoShardedBot, Context
-from discord import Activity, AllowedMentions
+from discord import Activity, AllowedMentions, Intents
 from aiohttp import ClientSession, ClientTimeout
 from discord.ext.commands.bot import when_mentioned_or
 
@@ -51,11 +51,15 @@ class PistonBot(AutoShardedBot):
         await client.change_presence(activity=self.error_activity)
 
 
+intents = Intents.default()
+intents.message_content = True
+
 client = PistonBot(
     command_prefix=when_mentioned_or('./', '/'),
     description='Hello, I can run code!',
     max_messages=15000,
-    allowed_mentions=AllowedMentions(everyone=False, users=True, roles=False)
+    allowed_mentions=AllowedMentions(everyone=False, users=True, roles=False),
+    intents=intents
 )
 client.remove_command('help')
 
@@ -87,6 +91,7 @@ async def on_message(msg):
             msg.content = msg.content.replace(f'{prefix}run', f'/run', 1)
             break
     await client.process_commands(msg)
+
 
 @client.event
 async def on_error(event_method, *args, **kwargs):
