@@ -267,5 +267,5 @@ class ErrorHandler(commands.Cog, name='ErrorHandler'):
     #         # await self.client.get_command('error_mock').invoke(ctx)
 
 
-def setup(client):
-    client.add_cog(ErrorHandler(client))
+async def setup(client):
+    await client.add_cog(ErrorHandler(client))

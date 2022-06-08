@@ -63,25 +63,32 @@ client = PistonBot(
 )
 client.remove_command('help')
 
-STARTUP_EXTENSIONS = []
-for file in listdir(path.join(path.dirname(__file__), 'cogs/')):
-    filename, ext = path.splitext(file)
-    if '.py' in ext:
-        STARTUP_EXTENSIONS.append(f'cogs.{filename}')
-
-for extension in reversed(STARTUP_EXTENSIONS):
-    try:
-        client.load_extension(f'{extension}')
-    except Exception as e:
-        client.last_errors.append((e, datetime.now(tz=timezone.utc), 'Cog INIT', None))
-        exc = f'{type(e).__name__}: {e}'
-        print(f'Failed to load extension {extension}\n{exc}')
-
 
 @client.event
 async def on_ready():
     print('PistonBot started successfully')
     return True
+
+
+@client.event
+async def on_connect():
+    print('Loading extensions')
+    STARTUP_EXTENSIONS = []
+    for file in listdir(path.join(path.dirname(__file__), 'cogs/')):
+        filename, ext = path.splitext(file)
+        if '.py' in ext:
+            STARTUP_EXTENSIONS.append(f'cogs.{filename}')
+
+    for extension in reversed(STARTUP_EXTENSIONS):
+        try:
+            print('loading', extension)
+            await client.load_extension(f'{extension}')
+        except Exception as e:
+            client.last_errors.append((e, datetime.now(tz=timezone.utc), 'Cog INIT', None))
+            exc = f'{type(e).__name__}: {e}'
+            print(f'Failed to load extension {extension}\n{exc}')
+    return True
+
 
 @client.event
 async def on_message(msg):

@@ -389,5 +389,5 @@ class Run(commands.Cog, name='CodeExecution'):
         await self.send_howto(ctx)
 
 
-def setup(client):
-    client.add_cog(Run(client))
+async def setup(client):
+    await client.add_cog(Run(client))

@@ -84,7 +84,7 @@ class Management(commands.Cog, name='Management'):
                 target_extension = cog_name
                 break
         try:
-            self.client.load_extension(target_extension)
+            await self.client.load_extension(target_extension)
         except Exception as e:
             await self.client.log_error(e, ctx)
             await ctx.send(f'```py\n{type(e).__name__}: {str(e)}\n```')
@@ -113,7 +113,7 @@ class Management(commands.Cog, name='Management'):
             return
         if self.client.extensions.get(target_extension) is None:
             return
-        self.client.unload_extension(target_extension)
+        await self.client.unload_extension(target_extension)
         await ctx.send(f'```css\nExtension [{target_extension}] unloaded.```')
 
     # ----------------------------------------------
@@ -141,7 +141,7 @@ class Management(commands.Cog, name='Management'):
         result = []
         for ext in target_extensions:
             try:
-                self.client.reload_extension(ext)
+                await self.client.reload_extension(ext)
                 result.append(f'Extension [{ext}] reloaded.')
             except Exception as e:
                 await self.client.log_error(e, ctx)
@@ -274,5 +274,5 @@ class Management(commands.Cog, name='Management'):
             await self.client.change_presence(activity=self.client.maintenance_activity)
 
 
-def setup(client):
-    client.add_cog(Management(client))
+async def setup(client):
+    await client.add_cog(Management(client))
