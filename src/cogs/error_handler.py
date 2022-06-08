@@ -96,18 +96,25 @@ class ErrorHandler(commands.Cog, name='ErrorHandler'):
                 return
 
         # In case of an unhandled error -> Save the error so it can be accessed later
+        await self.client.log_error(error, ctx)
+
         try:
             await ctx.send(f'{usr} {self.client.error_string}')
         except discord_errors.Forbidden:
             pass
+        except Exception as e:
+            print('EXCEPTION during sending of fallthrough error message\n', '='*80)
+            traceback.print_exception(
+                type(e), e, e.__traceback__
+            )
+            print('='*80)
 
-        await self.client.log_error(error, ctx)
 
         print(f'Ignoring exception in command {ctx.command}:', flush=True)
         traceback.print_exception(
             type(error), error, error.__traceback__
         )
-        print('-------------------------------------------------------------', flush=True)
+        print('-'*80, flush=True)
 
     # ----------------------------------------------
     # Error command Group
