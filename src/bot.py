@@ -46,7 +46,7 @@ class PistonBot(AutoShardedBot):
         for extension in reversed(STARTUP_EXTENSIONS):
             try:
                 print('loading', extension)
-                await client.load_extension(f'{extension}')
+                await self.load_extension(f'{extension}')
             except Exception as e:
                 await self.log_error(e, 'Cog INIT')
                 exc = f'{type(e).__name__}: {e}'
@@ -66,7 +66,7 @@ class PistonBot(AutoShardedBot):
             error_source.message.content if is_context else None,
             error_source.message.attachments[0] if has_attachment else None,
         ))
-        await client.change_presence(activity=self.error_activity)
+        await self.change_presence(activity=self.error_activity)
 
 
 intents = Intents.default()
