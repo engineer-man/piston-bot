@@ -351,7 +351,7 @@ class Run(commands.Cog, name='CodeExecution'):
             return False
         await ctx.send(
             f'```\nIO Cache {len(self.run_IO_store)} / {get_size(self.run_IO_store) // 1000} kb'
-            f'\nMessage Cache {len(self.client.cached_messages)} / {get_size(self.client.cached_messages)} kb\n```')
+            f'\nMessage Cache {len(self.client.cached_messages)} / {get_size(self.client.cached_messages) // 1000} kb\n```')
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
