@@ -29,7 +29,7 @@ class PistonBot(AutoShardedBot):
 
     async def start(self, *args, **kwargs):
         self.session = ClientSession(timeout=ClientTimeout(total=15))
-        await super().start(self.config["bot_key"], *args, **kwargs)
+        await super().start(*args, **kwargs)
 
     async def close(self):
         await self.session.close()
@@ -115,5 +115,5 @@ async def on_error(event_method, *args, **kwargs):
     await client.log_error(sys.exc_info()[1], 'DEFAULT HANDLER:' + event_method)
 
 
-client.run()
+client.run(client.config["bot_key"])
 print('PistonBot has exited')
