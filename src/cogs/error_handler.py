@@ -25,6 +25,9 @@ class ErrorHandler(commands.Cog, name='ErrorHandler'):
     # ----------------------------------------------
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
+        if isinstance(error, commands.CommandNotFound):
+            return
+
         if not isinstance(ctx.channel, DMChannel):
             perms = ctx.channel.permissions_for(ctx.guild.get_member(self.client.user.id))
             try:
@@ -39,9 +42,6 @@ class ErrorHandler(commands.Cog, name='ErrorHandler'):
                 return
 
         usr = ctx.author.mention
-
-        if isinstance(error, commands.CommandNotFound):
-            return
 
         if isinstance(error, commands.CommandOnCooldown):
             await ctx.send(error)
