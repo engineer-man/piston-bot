@@ -273,6 +273,14 @@ class Management(commands.Cog, name='Management'):
             self.client.maintenance_mode = True
             await self.client.change_presence(activity=self.client.maintenance_activity)
 
+    # ----------------------------------------------
+    # Command to sync slash commands
+    # ----------------------------------------------
+    @commands.command(name='synccmds', hidden=True)
+    async def sync_commands(self, ctx: commands.Context):
+        await self.client.tree.sync()
+        await ctx.send('Commands synced.')
+
 
 async def setup(client):
     await client.add_cog(Management(client))

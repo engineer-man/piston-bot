@@ -13,3 +13,7 @@ class PistonInvalidStatus(PistonError):
 class PistonInvalidContentType(PistonError):
     """Exception raised when the API request returns a non JSON content type"""
     pass
+
+class NoLanguageFoundError(Exception):
+    """Exception raised when no language is found"""
+    pass

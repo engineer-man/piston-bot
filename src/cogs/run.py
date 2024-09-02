@@ -6,16 +6,11 @@ Commands:
 
 """
 # pylint: disable=E0402
-import json
-import re, sys
+import sys
 from dataclasses import dataclass
 from discord import Embed, Message, errors as discord_errors
-from discord.ext import commands, tasks
-from discord.utils import escape_mentions
-from aiohttp import ContentTypeError
-from .utils.codeswap import add_boilerplate
-from .utils.errors import PistonInvalidContentType, PistonInvalidStatus, PistonNoOutput
-#pylint: disable=E1101
+from discord.ext import commands
+# pylint: disable=E1101
 
 
 @dataclass
@@ -46,218 +41,45 @@ def get_size(obj, seen=None):
 class Run(commands.Cog, name='CodeExecution'):
     def __init__(self, client):
         self.client = client
-        self.run_IO_store = dict()  # Store the most recent /run message for each user.id
-        self.languages = dict()  # Store the supported languages and aliases
-        self.versions = dict() # Store version for each language
-        self.run_regex_code = re.compile(
-            r'(?s)/(?:edit_last_)?run'
-            r'(?: +(?P<language>\S*?)\s*|\s*)'
-            r'(?:-> *(?P<output_syntax>\S*)\s*|\s*)'
-            r'(?:\n(?P<args>(?:[^\n\r\f\v]*\n)*?)\s*|\s*)'
-            r'```(?:(?P<syntax>\S+)\n\s*|\s*)(?P<source>.*)```'
-            r'(?:\n?(?P<stdin>(?:[^\n\r\f\v]\n?)+)+|)'
-        )
-        self.run_regex_file = re.compile(
-            r'/run(?: *(?P<language>\S*)\s*?|\s*?)?'
-            r'(?: *-> *(?P<output>\S*)\s*?|\s*?)?'
-            r'(?:\n(?P<args>(?:[^\n\r\f\v]+\n?)*)\s*|\s*)?'
-            r'(?:\n*(?P<stdin>(?:[^\n\r\f\v]\n*)+)+|)?'
-        )
-        self.get_available_languages.start()
+        self.run_IO_store: dict[int, RunIO] = dict()
+        # Store the most recent /run message for each user.id
 
-    @tasks.loop(count=1)
-    async def get_available_languages(self):
-        async with self.client.session.get(
-            'https://emkc.org/api/v2/piston/runtimes'
-        ) as response:
-            runtimes = await response.json()
-        for runtime in runtimes:
-            language = runtime['language']
-            self.languages[language] = language
-            self.versions[language] = runtime['version']
-            for alias in runtime['aliases']:
-                self.languages[alias] = language
-                self.versions[alias] = runtime['version']
-
-    async def send_to_log(self, ctx, language, source):
-        logging_data = {
-            'server': ctx.guild.name if ctx.guild else 'DMChannel',
-            'server_id': str(ctx.guild.id) if ctx.guild else '0',
-            'user': f'{ctx.author.name}#{ctx.author.discriminator}',
-            'user_id': str(ctx.author.id),
-            'language': language,
-            'source': source
-        }
-        headers = {'Authorization': self.client.config["emkc_key"]}
-
-        async with self.client.session.post(
-            'https://emkc.org/api/internal/piston/log',
-            headers=headers,
-            data=json.dumps(logging_data)
-        ) as response:
-            if response.status != 200:
-                await self.client.log_error(
-                    commands.CommandError(f'Error sending log. Status: {response.status}'),
-                    ctx
-                )
-                return False
-
-        return True
-
-    async def get_api_parameters_with_codeblock(self, ctx):
-        if ctx.message.content.count('```') != 2:
-            raise commands.BadArgument('Invalid command format (missing codeblock?)')
-
-        match = self.run_regex_code.search(ctx.message.content)
-
-        if not match:
-            raise commands.BadArgument('Invalid command format')
-
-        language, output_syntax, args, syntax, source, stdin = match.groups()
-
-        if not language:
-            language = syntax
-
-        if language:
-            language = language.lower()
-
-        if language not in self.languages:
-            raise commands.BadArgument(
-                f'Unsupported language: **{str(language)[:1000]}**\n'
-                '[Request a new language](https://github.com/engineer-man/piston/issues)'
-            )
-
-        return language, output_syntax, source, args, stdin
-
-    async def get_api_parameters_with_file(self, ctx):
-        if len(ctx.message.attachments) != 1:
-            raise commands.BadArgument('Invalid number of attachments')
-
-        file = ctx.message.attachments[0]
-
-        MAX_BYTES = 65535
-        if file.size > MAX_BYTES:
-            raise commands.BadArgument(f'Source file is too big ({file.size}>{MAX_BYTES})')
-
-        filename_split = file.filename.split('.')
-
-        if len(filename_split) < 2:
-            raise commands.BadArgument('Please provide a source file with a file extension')
-
-        match = self.run_regex_file.search(ctx.message.content)
-
-        if not match:
-            raise commands.BadArgument('Invalid command format')
-
-        language, output_syntax, args, stdin = match.groups()
-
-        if not language:
-            language = filename_split[-1]
-
-        if language:
-            language = language.lower()
-
-        if language not in self.languages:
-            raise commands.BadArgument(
-                f'Unsupported file extension: **{language}**\n'
-                '[Request a new language](https://github.com/engineer-man/piston/issues)'
-            )
-
-        source = await file.read()
-        try:
-            source = source.decode('utf-8')
-        except UnicodeDecodeError as e:
-            raise commands.BadArgument(str(e))
-
-        return language, output_syntax, source, args, stdin
-
-    async def get_run_output(self, ctx):
+    async def get_run_output(self, ctx: commands.Context):
         # Get parameters to call api depending on how the command was called (file <> codeblock)
         if ctx.message.attachments:
-            alias, output_syntax, source, args, stdin = await self.get_api_parameters_with_file(ctx)
-        else:
-            alias, output_syntax, source, args, stdin = await self.get_api_parameters_with_codeblock(ctx)
+            source, language, output_syntax, args, stdin = self.client.runner.get_api_params_with_file(
+                input_language="",
+                output_syntax="",
+                args="",
+                stdin="",
+                content=ctx.message.content,
+                file=ctx.message.attachments[0],
+            )
+            return await self.client.runner.get_run_output(
+                ctx.guild,
+                ctx.author,
+                source=source,
+                language=language,
+                output_syntax=output_syntax,
+                args=args,
+                stdin=stdin,
+                mention_author=True,
+            )
 
-        # Resolve aliases for language
-        language = self.languages[alias]
-
-        version = self.versions[alias]
-
-        # Add boilerplate code to supported languages
-        source = add_boilerplate(language, source)
-
-        # Split args at newlines
-        if args:
-            args = [arg for arg in args.strip().split('\n') if arg]
-
-        if not source:
-            raise commands.BadArgument(f'No source code found')
-
-        # Call piston API
-        data = {
-            'language': alias,
-            'version': version,
-            'files': [{'content': source}],
-            'args': args,
-            'stdin': stdin or "",
-            'log': 0
-        }
-        headers = {'Authorization': self.client.config["emkc_key"]}
-        async with self.client.session.post(
-            'https://emkc.org/api/v2/piston/execute',
-            headers=headers,
-            json=data
-        ) as response:
-            try:
-                r = await response.json()
-            except ContentTypeError:
-                raise PistonInvalidContentType('invalid content type')
-        if not response.status == 200:
-            raise PistonInvalidStatus(f'status {response.status}: {r.get("message", "")}')
-
-        comp_stderr = r['compile']['stderr'] if 'compile' in r else ''
-        run = r['run']
-
-        if run['output'] is None:
-            raise PistonNoOutput('no output')
-
-        # Logging
-        await self.send_to_log(ctx, language, source)
-
-        language_info=f'{alias}({version})'
-
-        # Return early if no output was received
-        if len(run['output'] + comp_stderr) == 0:
-            return f'Your {language_info} code ran without output {ctx.author.mention}'
-
-        # Limit output to 30 lines maximum
-        output = '\n'.join((comp_stderr + run['output']).split('\n')[:30])
-
-        # Prevent mentions in the code output
-        output = escape_mentions(output)
-
-        # Prevent code block escaping by adding zero width spaces to backticks
-        output = output.replace("`", "`\u200b")
-
-        # Truncate output to be below 2000 char discord limit.
-        if len(comp_stderr) > 0:
-            introduction = f'{ctx.author.mention} I received {language_info} compile errors\n'
-        elif len(run['stdout']) == 0 and len(run['stderr']) > 0:
-            introduction = f'{ctx.author.mention} I only received {language_info} error output\n'
-        else:
-            introduction = f'Here is your {language_info} output {ctx.author.mention}\n'
-        truncate_indicator = '[...]'
-        len_codeblock = 7  # 3 Backticks + newline + 3 Backticks
-        available_chars = 2000-len(introduction)-len_codeblock
-        if len(output) > available_chars:
-            output = output[:available_chars-len(truncate_indicator)] + truncate_indicator
-
-        # Use an empty string if no output language is selected
-        return (
-            introduction
-            + f'```{output_syntax or ""}\n'
-            + output.replace('\0', '')
-            + '```'
+        source, language, output_syntax, args, stdin = self.client.runner.get_api_params_with_codeblock(
+            content=ctx.message.content,
+            mention_author=True,
+            needs_strict_re=True,
+        )
+        return await self.client.runner.get_run_output(
+            ctx.guild,
+            ctx.author,
+            source=source,
+            language=language,
+            output_syntax=output_syntax,
+            args=args,
+            stdin=stdin,
+            mention_author=True,
         )
 
     async def delete_last_output(self, user_id):
@@ -300,7 +122,7 @@ class Run(commands.Cog, name='CodeExecution'):
             await self.send_howto(ctx)
             return
         try:
-            run_output = await self.get_run_output(ctx)
+            run_output, _ = await self.get_run_output(ctx)
             msg = await ctx.send(run_output)
         except commands.BadArgument as error:
             embed = Embed(
@@ -320,7 +142,7 @@ class Run(commands.Cog, name='CodeExecution'):
             return
         try:
             msg_to_edit = self.run_IO_store[ctx.author.id].output
-            run_output = await self.get_run_output(ctx)
+            run_output, _ = await self.get_run_output(ctx)
             await msg_to_edit.edit(content=run_output, embed=None)
         except KeyError:
             # Message no longer exists in output store
@@ -388,7 +210,7 @@ class Run(commands.Cog, name='CodeExecution'):
         await self.delete_last_output(message.author.id)
 
     async def send_howto(self, ctx):
-        languages = sorted(set(self.languages.values()))
+        languages = self.client.runner.get_languages()
 
         run_instructions = (
             '**Update: Discord changed their client to prevent sending messages**\n'

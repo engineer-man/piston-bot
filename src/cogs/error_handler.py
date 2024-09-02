@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 from asyncio import TimeoutError as AsyncTimeoutError
 from discord import Embed, DMChannel, errors as discord_errors
 from discord.ext import commands
-from .utils.errors import PistonError
+from .utils.errors import PistonError, NoLanguageFoundError
 
 
 class ErrorHandler(commands.Cog, name='ErrorHandler'):
@@ -63,7 +63,7 @@ class ErrorHandler(commands.Cog, name='ErrorHandler'):
             await ctx.send(f'Sorry {usr}, you are not allowed to run this command.')
             return
 
-        if isinstance(error, commands.BadArgument):
+        if isinstance(error, commands.BadArgument) or isinstance(error, NoLanguageFoundError):
             # It's in an embed to prevent mentions from working
             embed = Embed(
                 title='Error',

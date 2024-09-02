@@ -7,10 +7,10 @@ import traceback
 from datetime import datetime, timezone
 from os import path, listdir
 from discord.ext.commands import AutoShardedBot, Context
-from discord import Activity, AllowedMentions, Intents
+from discord import Activity, AllowedMentions, Intents, Interaction
 from aiohttp import ClientSession, ClientTimeout
 from discord.ext.commands.bot import when_mentioned_or
-
+from cogs.utils.runner import Runner
 
 class PistonBot(AutoShardedBot):
     def __init__(self, *args, **options):
@@ -29,6 +29,7 @@ class PistonBot(AutoShardedBot):
 
     async def start(self, *args, **kwargs):
         self.session = ClientSession(timeout=ClientTimeout(total=15))
+        self.runner = Runner(self.config['emkc_key'], self.session)
         await super().start(*args, **kwargs)
 
     async def close(self):
@@ -51,7 +52,6 @@ class PistonBot(AutoShardedBot):
                 await self.log_error(e, 'Cog INIT')
                 exc = f'{type(e).__name__}: {e}'
                 print(f'Failed to load extension {extension}\n{exc}')
-
 
     def user_is_admin(self, user):
         return user.id in self.config['admins']
